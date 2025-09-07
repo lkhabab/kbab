@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}التقويم الزراعي — (بدل الطقس){% endblock %}
+
+{% block content %}
+<div class="container-xxl" dir="rtl">
+  <section class="hero my-3 p-4 rounded-3 glass">
+    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2 justify-content-between">
+      <div>
+        <h3 class="m-0">التقويم الزراعي في السودان</h3>
+        <p class="text-muted m-0">الصحفه دي عشان تعرف المواسم حقت الزراعه. اختار الموسم والمنطقة وشوف أنسب محاصيل كل شهر.</p>
+      </div>
+      <div class="d-flex gap-2 flex-wrap align-items-center">
+        {% for s in cal["المواسم"] %}
+          <button class="btn btn-sm season-pill" data-sel="{{ s.id }}">{{ s.name }}</button>
+        {% endfor %}
+        <select id="regionSel" class="form-select form-select-sm" style="width:auto">
+          <option value="">كل السودان</option>
+          {% for r in cal["المناطق"] %}<option value="{{ r }}">{{ r }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section class="compare glass p-3 rounded-3 mb-3">
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <span class="text-muted">قارن بين شهرين:</span>
+      <select id="cmpA" class="form-select form-select-sm" style="width:auto">
+        <option value="">اختار شهر (أ)</option>
+        {% for m in cal["الشهور"] %}<option>{{ m.m }}</option>{% endfor %}
+      </select>
+      <span class="text-muted">×</span>
+      <select id="cmpB" class="form-select form-select-sm" style="width:auto">
+        <option value="">اختار شهر (ب)</option>
+        {% for m in cal["الشهور"] %}<option>{{ m.m }}</option>{% endfor %}
+      </select>
+      <button id="cmpBtn" class="btn btn-sm btn-primary">قارن</button>
+      <span id="cmpResult" class="ms-2 small text-muted"></span>
+    </div>
+  </section>
+
+  <section class="months-grid">
+    <div class="row g-3">
+      {% for item in cal["الشهور"] %}
+      <div class="col-12 col-sm-6 col-lg-3 month-col" data-season="{{ item.s }}">
+        <div class="month-card glass h-100">
+          <div class="month-head d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+              <div class="season-icon {{ item.s }}" aria-hidden="true"></div>
+              <div class="fw-bold">{{ item.m }}</div>
+            </div>
+            <div class="season-tag">
+              {{ "الشتاء" if item.s=="winter" else "الصيف (حار وجاف)" if item.s=="hotdry" else "الخريف" if item.s=="rainy" else "الخريف المتأخر/الربيع" }}
+            </div>
+          </div>
+          <div class="month-body">
+            <ul class="list-unstyled mb-2 tips">
+              {% for line in item.crops %}
+              <li>• {{ line }}</li>
+              {% endfor %}
+            </ul>
+            <button class="btn btn-sm btn-outline-primary more-btn" 
+                    data-month="{{ item.m }}" 
+                    data-season="{{ item.s }}"
+                    data-details="{{ item.details|e }}"
+                    data-regions='{{ item.regions|tojson|e }}'>
+              تفاصيل
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <div class="modal fade" id="detailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content glass">
+        <div class="modal-header">
+          <h5 class="modal-title" id="detailsTitle">تفاصيل الشهر</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+        </div>
+        <div class="modal-body" id="detailsBody">...</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="helper glass p-3 rounded-3 mt-3">
+    <strong class="me-2">ملاحظة:</strong>
+    <span class="text-muted small">التقويم ما صحيح نسبه 100% بعنمد على الخبراء والطقس  .</span>
+  </section>
+</div>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/calendar.css') }}">
+<script src="{{ url_for('static', filename='js/calendar_regions.js') }}"></script>
+{% endblock %}

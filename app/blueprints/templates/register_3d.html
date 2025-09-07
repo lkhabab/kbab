@@ -1,0 +1,13 @@
+
+{% extends "base.html" %}
+{% block title %}إنشاء حساب 3D{% endblock %}
+{% block content %}
+  <div id="agri-3d-root"></div>
+  <script>
+    window.__MODE__ = "register";
+    window.__REGISTER_ACTION__ = "{{ url_for('auth.register') }}";
+    window.__CSRF__ = "{{ form.csrf_token._value() }}";
+  </script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='agri3d/agri3d.css') }}">
+  <script type="module" src="{{ url_for('static', filename='agri3d/agri3d-cdn.js') }}"></script>
+{% endblock %}

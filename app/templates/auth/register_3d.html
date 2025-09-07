@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}إنشاء حساب 3D{% endblock %}
+{% block content %}
+<div id="agri-3d-root"></div>
+
+<script>
+  // نستخدم سكربت الخلفية فقط
+  window.__MODE__ = "register";
+</script>
+
+<style>
+  *{box-sizing:border-box}
+  #agri-3d-root{position:relative;min-height:100vh;width:100vw;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);background:#073530;color:#eafff4}
+  #agri-3d-root canvas{position:absolute;inset:0;z-index:0;display:block}
+  .agri-center{position:absolute !important;inset:0 !important;display:flex !important;align-items:center !important;justify-content:center !important;padding:16px;z-index:1}
+  .agri-card{width:100%;max-width:520px;border-radius:22px;border:1px solid rgba(167,243,208,.28);background:rgba(6,78,59,.2);backdrop-filter:blur(10px);box-shadow:0 25px 60px rgba(0,0,0,.35);padding:22px 24px;z-index:2}
+  .agri-card h1{margin:0 0 8px;font-size:26px}
+  .agri-card p{margin:0 0 16px;opacity:.85}
+  .agri-input{width:100%;border-radius:14px;border:1px solid rgba(167,243,208,.25);background:rgba(2,44,34,.45);color:#eafff4;padding:12px 14px;outline:none}
+  .agri-input::placeholder{color:rgba(234,255,244,.55)}
+  .agri-input:focus{border-color:rgba(167,243,208,.7)}
+  .agri-btn{width:100%;border:0;border-radius:16px;padding:12px 16px;font-weight:700;background:#34d399;color:#053c31;cursor:pointer;box-shadow:0 12px 28px rgba(5,60,49,.5)}
+  .agri-link{color:#d1fae5;text-decoration:underline;text-underline-offset:3px}
+  .agri-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:640px){.agri-grid{grid-template-columns:1fr}}
+</style>
+
+<!-- الفورم ثابت فوق الكانفاس، لا نعتمد على JS لحقنه -->
+<div class="agri-center" dir="rtl">
+  <form method="post" action="{{ url_for('auth.register') }}" class="agri-card">
+    {{ form.csrf_token }}
+
+    <h1>إنشاء حساب</h1>
+    <p>أدخل بياناتك للبدء.</p>
+
+    <div class="agri-grid">
+      <div>
+        {{ form.name(class="agri-input", placeholder="الاسم الكامل") }}
+        {% for e in form.name.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+      <div>
+        {{ form.username(class="agri-input", placeholder="اسم المستخدم") }}
+        {% for e in form.username.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+
+      <div>
+        {{ form.email(class="agri-input", placeholder="البريد (اختياري)") }}
+        {% for e in form.email.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+      <div>
+        {{ form.date_of_birth(class="agri-input", type="date") }}
+        {% for e in form.date_of_birth.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+
+      <div>
+        {{ form.farm_location(class="agri-input", placeholder="موقع المزرعة (اختياري)") }}
+        {% for e in form.farm_location.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+      <div>
+        {{ form.contact_details(class="agri-input", placeholder="وسيلة الاتصال (اختياري)") }}
+        {% for e in form.contact_details.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+
+      <div>
+        {{ form.password(class="agri-input", type="password", placeholder="كلمة المرور") }}
+        {% for e in form.password.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+      <div>
+        {{ form.confirm(class="agri-input", type="password", placeholder="تأكيد كلمة المرور") }}
+        {% for e in form.confirm.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+    </div>
+
+    <div style="margin-top:14px">
+      <button class="agri-btn" type="submit">تسجيل</button>
+    </div>
+
+    <div style="margin-top:10px;text-align:center">
+      عندك حساب؟ <a class="agri-link" href="{{ url_for('auth.login_3d') }}">تسجيل دخول</a>
+    </div>
+  </form>
+</div>
+
+<!-- سكربت الخلفية فقط (يرسم 3D) -->
+<script type="module" src="{{ url_for('static', filename='agri3d/agri3d-cdn.js') }}"></script>
+{% endblock %}

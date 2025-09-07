@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}تسجيل الدخول 3D{% endblock %}
+{% block content %}
+  <div id="agri-3d-root" style="min-height:100vh"></div>
+
+  <script>
+    // نمُرّر الهدف و CSRF للواجهة
+    window.__MODE__ = "login";
+    window.__LOGIN_ACTION__ = "{{ url_for('auth.login') }}";
+    window.__CSRF__ = "{{ form.csrf_token._value() }}";
+  </script>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='agri3d/agri3d.css') }}">
+  <script type="module" src="{{ url_for('static', filename='agri3d/agri3d-cdn.js') }}"></script>
+{% endblock %}

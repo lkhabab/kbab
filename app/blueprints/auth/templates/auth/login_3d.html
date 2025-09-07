@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}تسجيل الدخول (3D){% endblock %}
+
+{% block head_extra %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='agri3d/ui/index.css') }}">
+{% endblock %}
+
+{% block content %}
+<div dir="rtl" style="min-height: calc(100vh - 64px); position: relative;">
+  <div id="agri-3d-root"></div>
+
+  <script>
+    window.__AGRI3D = {
+      mode: "login",
+      actionUrl: "{{ url_for('auth.login') }}",
+      csrfToken: "{{ form.csrf_token._value()|safe }}"
+    };
+  </script>
+
+  <script type="module" src="{{ url_for('static', filename='agri3d/ui/main.js') }}"></script>
+
+  <noscript>
+    <div class="container py-4">
+      <div class="alert alert-warning">المتصفح لا يشغّل JavaScript.
+        استخدم <a href="{{ url_for('auth.login') }}">نموذج الدخول التقليدي</a>.
+      </div>
+    </div>
+  </noscript>
+</div>
+{% endblock %}
