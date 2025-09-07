@@ -1,0 +1,14 @@
+@font-face{font-family:'Tajawal';src:local('Tajawal'),url('https://fonts.gstatic.com/s/tajawal/v9/IurA6YBj_oCad4k1l2Vj4A.woff2') format('woff2');font-display:swap}
+:root{
+  --bg1:#071f1b; --bg2:#0b3b36; --mint:#34d399; --glass:rgba(255,255,255,.06); --border:rgba(255,255,255,.12);
+}
+body.bg-deep{background: radial-gradient(1200px 600px at 50% -10%, #0b3b36 0%, #071f1b 60%); color:#e9faf4; font-family:'Tajawal',system-ui,Segoe UI,Arial}
+.glassy{background:var(--glass); backdrop-filter: blur(10px); border-bottom:1px solid var(--border)}
+a{color:#b7ffea}
+a:hover{color:#7ff6d9}
+.card.glass{background:var(--glass);border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.btn-mint{background:var(--mint);color:#052e2b;font-weight:700}
+.btn-mint:hover{opacity:.92;color:#052e2b}
+.section{padding:48px 0}
+.hero{min-height:70vh; display:grid; place-items:center; position:relative; overflow:hidden}
+.hero .overlay{position:absolute; inset:0; background: radial-gradient(600px 300px at 50% 0%, rgba(0,0,0,.25), transparent 70%)}

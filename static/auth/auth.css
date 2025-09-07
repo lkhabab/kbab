@@ -1,0 +1,8 @@
+.auth-hero{position:relative;min-height:100vh;display:grid;place-items:center;overflow:hidden}
+.auth-bg{position:absolute;inset:0;background:
+  radial-gradient(1200px 500px at 50% -10%, #0b3b36 0%, #071f1b 60%),
+  repeating-linear-gradient(-12deg,#053b35 0px,#053b35 14px,#0b5c50 14px,#0b5c50 28px);
+  opacity:.5}
+.auth-card{padding:22px;border-radius:18px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);backdrop-filter:blur(10px)}
+.glass-inp{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#e9faf4}
+.glass-inp:focus{border-color:#34d399; box-shadow:none}

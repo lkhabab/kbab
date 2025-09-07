@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}الخدمات{% endblock %}
+{% block content %}
+<section class="section" style="background:linear-gradient(180deg,#0b3b36 0,#09342f 40%, #082926 100%);">
+  <div class="container">
+    <div class="text-center mb-4">
+      <h2 class="fw-bold">خدمات المنصّة</h2>
+      <p class="text-secondary">واجهة نظيفة وخلفية بطابع زراعي، بدون 3D.</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="card glass p-4">
+          <h5 class="mb-2">لوحة متابعة المزارع</h5>
+          <p class="text-secondary">نظرة عامة على الحقول، عمليات الريّ، المهام، والإشعارات.</p>
+          <ul class="text-secondary small mb-0">
+            <li>تنبيهات طقس وحرارة التربة.</li>
+            <li>تذكير بمواعيد الزراعة والرشّ والحصاد.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card glass p-4">
+          <h5 class="mb-2">تشخيص مبدئي + توصيات</h5>
+          <p class="text-secondary">أدخل الأعراض لتحصل على احتمالات وممارسات تحسينية عامة.</p>
+          <ul class="text-secondary small mb-0">
+            <li>قابل للتوسّع لاحقاً بنماذج ML.</li>
+            <li>نصوص جاهزة للطوارئ وأمان المزارع.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card glass p-4">
+          <h5 class="mb-2">الطقس المحلي</h5>
+          <p class="text-secondary">درجات الحرارة، الرطوبة، سرعة الرياح وهطول الأمطار.</p>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card glass p-4">
+          <h5 class="mb-2">تقدير إنتاجية</h5>
+          <p class="text-secondary">حسابات تقريبية بناءً على المساحة والمحصول وتاريخ الزراعة.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

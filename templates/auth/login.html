@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}تسجيل الدخول{% endblock %}
+{% block content %}
+<link href="{{ url_for('static', filename='auth/auth.css') }}" rel="stylesheet">
+<section class="auth-hero">
+  <div class="auth-bg"></div>
+  <div class="container position-relative" style="z-index:2">
+    <div class="row justify-content-center">
+      <div class="col-md-7 col-lg-5">
+        <form class="auth-card glass" method="post" action="">
+          {{ form.hidden_tag() if form else '' }}
+          <h3 class="mb-2 fw-bold text-center">تسجيل الدخول</h3>
+          <p class="text-secondary text-center mb-3">مرحبًا بك! أدخل بياناتك للمتابعة إلى لوحة المزارع.</p>
+          <label class="form-label">اسم المستخدم</label>
+          <input name="username" class="form-control glass-inp" required placeholder="farmer123">
+          <label class="form-label mt-2">كلمة المرور</label>
+          <input name="password" type="password" class="form-control glass-inp" required placeholder="••••••••">
+          <div class="d-flex justify-content-between align-items-center mt-2 small">
+            <label class="d-flex align-items-center gap-2">
+              <input type="checkbox" name="remember" class="form-check-input" style="float:none"> تذكّرني
+            </label>
+            <a class="link-light" href="#">نسيت؟</a>
+          </div>
+          <button class="btn btn-mint w-100 mt-3">دخول</button>
+          <div class="text-center small mt-2">ما عندك حساب؟ <a href="{{ url_for('auth.register') }}">إنشاء حساب</a></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
