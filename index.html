@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>المزارع — واجهة موحّدة (Index واحد)</title>
+  <!-- Bootstrap RTL -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  <!-- Tajawal font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;800&display=swap" rel="stylesheet">
+  <!-- Three.js for 3D hero -->
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <style>
+    :root{
+      --bg1:#071f1b; --bg2:#0b3b36; --mint:#34d399; --ink:#052e2b;
+      --glass:rgba(255,255,255,.06); --border:rgba(255,255,255,.12);
+    }
+    body{background: radial-gradient(1200px 600px at 50% -10%, var(--bg2) 0%, var(--bg1) 60%);
+         color:#e9faf4; font-family:'Tajawal',system-ui,Segoe UI,Arial}
+    .glassy{background:var(--glass); backdrop-filter: blur(10px); border-bottom:1px solid var(--border)}
+    .btn-mint{background:var(--mint); color:var(--ink); font-weight:800}
+    .btn-mint:hover{opacity:.92;color:var(--ink)}
+    a{color:#b7ffea} a:hover{color:#7ff6d9}
+    .section{padding:48px 0}
+    /* Router visibility */
+    section[hidden]{display:none !important}
+    /* Hero 3D */
+    .hero{min-height:70vh; display:grid; place-items:center; position:relative; overflow:hidden}
+    .hero canvas{position:absolute; inset:0}
+    .hero .overlay{position:absolute; inset:0; background: radial-gradient(600px 300px at 50% 0%, rgba(0,0,0,.25), transparent 70%)}
+    .card.glass{background:var(--glass);border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.35)}
+    /* Auth glass */
+    .auth-hero{position:relative;min-height:100vh;display:grid;place-items:center;overflow:hidden}
+    .auth-bg{position:absolute;inset:0;background:
+      radial-gradient(1200px 500px at 50% -10%, #0b3b36 0%, #071f1b 60%),
+      repeating-linear-gradient(-12deg,#053b35 0px,#053b35 14px,#0b5c50 14px,#0b5c50 28px);
+      opacity:.5}
+    .auth-card{padding:22px;border-radius:18px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);backdrop-filter:blur(10px)}
+    .glass-inp{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#e9faf4}
+    .glass-inp:focus{border-color:var(--mint); box-shadow:none}
+    /* Chat */
+    .chatbox{min-height:280px;max-height:420px;overflow:auto;padding:8px;background:rgba(0,0,0,.2);border-radius:10px;border:1px solid var(--border)}
+    .bubble{max-width:72%;margin:6px 0;padding:10px 12px;border-radius:12px}
+    .bubble.me{margin-left:auto;background:#34d399;color:#052e2b}
+    .bubble.bot{background:rgba(255,255,255,.08);border:1px solid var(--border)}
+    footer{color:#a0bdb6}
+    /* Simple toast */
+    #toast{position:fixed; bottom:16px; right:16px; background:#062a26; color:#c7fff0; border:1px solid #0a4c44; padding:10px 14px; border-radius:10px; display:none; z-index:9999}
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark glassy sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#/home">المزارع</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div id="nav" class="collapse navbar-collapse">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" data-link href="#/home">الرئيسية</a></li>
+          <li class="nav-item"><a class="nav-link" data-link href="#/features">الخدمات</a></li>
+          <li class="nav-item"><a class="nav-link" data-link href="#/calendar">التقويم</a></li>
+          <li class="nav-item"><a class="nav-link" data-link href="#/chat">محادثة</a></li>
+          <li class="nav-item"><a class="nav-link" data-link href="#/about">تعريف</a></li>
+        </ul>
+        <ul class="navbar-nav">
+          <li class="nav-item" id="nav-login"><a class="nav-link" data-link href="#/login">دخول</a></li>
+          <li class="nav-item" id="nav-register"><a class="nav-link" data-link href="#/register">تسجيل</a></li>
+          <li class="nav-item d-none" id="nav-logout"><a class="nav-link" href="#" onclick="logout();return false;">خروج</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HOME (3D) -->
+  <section id="home" class="hero" hidden>
+    <canvas id="farm3d"></canvas>
+    <div class="overlay"></div>
+    <div class="container position-relative">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+          <h1 class="display-5 fw-bold mb-3">مساعد المزارع الذكي</h1>
+          <p class="lead text-secondary">تشخيص مبدئي للأعراض، طقس محلي، تقويم زراعي، تقدير إنتاجية، ومحادثة مساعدة.</p>
+          <div class="d-flex gap-2 justify-content-center mt-3">
+            <a class="btn btn-mint px-4" href="#/login">ابدأ الآن</a>
+            <a class="btn btn-outline-light px-4" href="#/features">تعرّف أكثر</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES (No 3D, image-friendly) -->
+  <section id="features" class="section" hidden>
+    <div class="container">
+      <div class="text-center mb-4">
+        <h2 class="fw-bold">خدمات المنصّة</h2>
+        <p class="text-secondary">واجهة نظيفة وخلفية بطابع زراعي، بدون 3D.</p>
+      </div>
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="card glass p-4">
+            <h5 class="mb-2">لوحة متابعة المزارع</h5>
+            <p class="text-secondary">نظرة عامة على الحقول، عمليات الريّ، المهام، والإشعارات.</p>
+            <ul class="text-secondary small mb-0">
+              <li>تنبيهات طقس وحرارة التربة.</li>
+              <li>تذكير بمواعيد الزراعة والرشّ والحصاد.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card glass p-4">
+            <h5 class="mb-2">تشخيص مبدئي + توصيات</h5>
+            <p class="text-secondary">أدخل الأعراض لتحصل على احتمالات وممارسات تحسينية عامة.</p>
+            <ul class="text-secondary small mb-0">
+              <li>قابل للتوسّع لاحقاً بنماذج ML.</li>
+              <li>نصوص جاهزة للطوارئ وأمان المزارع.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card glass p-4">
+            <h5 class="mb-2">الطقس المحلي</h5>
+            <p class="text-secondary">درجات الحرارة، الرطوبة، سرعة الرياح وهطول الأمطار.</p>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card glass p-4">
+            <h5 class="mb-2">تقدير إنتاجية</h5>
+            <p class="text-secondary">حسابات تقريبية بناءً على المساحة والمحصول وتاريخ الزراعة.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALENDAR -->
+  <section id="calendar" class="section" hidden>
+    <div class="container">
+      <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+        <h2 class="m-0">التقويم الزراعي في السودان</h2>
+        <span class="text-secondary small">نسخة استرشادية — تخصيصها سهل.</span>
+        <div class="ms-auto d-flex gap-2">
+          <select id="season" class="form-select form-select-sm glassy text-light border-0" style="width:160px;background:var(--glass)">
+            <option value="all">كل المواسم</option>
+            <option value="خريف">الخريف</option>
+            <option value="شتاء">الشتاء</option>
+            <option value="صيف">الصيف (دار وحاف)</option>
+          </select>
+          <select id="region" class="form-select form-select-sm glassy text-light border-0" style="width:160px;background:var(--glass)">
+            <option>كل السودان</option>
+            <option>الجزيرة</option>
+            <option>النيل الأبيض</option>
+            <option>كردفان</option>
+          </select>
+        </div>
+      </div>
+      <div id="months" class="row g-3"></div>
+      <div class="text-secondary small mt-3">* التقويم استرشادي ويعتمد على الخبرة والطقس.</div>
+    </div>
+  </section>
+
+  <!-- CHAT -->
+  <section id="chat" class="section" hidden>
+    <div class="container">
+      <h2 class="mb-3">مساعد المحادثة الزراعي</h2>
+      <div class="card glass p-3">
+        <div id="chatbox" class="chatbox"></div>
+        <form id="chatForm" class="d-flex gap-2 mt-2" onsubmit="return false;">
+          <input id="msg" class="form-control" placeholder="اكتب سؤالك الزراعي..." autocomplete="off">
+          <button class="btn btn-mint">إرسال</button>
+          <button id="clear" class="btn btn-outline-light" type="button">مسح</button>
+        </form>
+        <div class="small text-secondary mt-2">* نسخة واجهة فقط. للربط بالباك-إند استخدم /api/chat.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="section" hidden>
+    <div class="container">
+      <h2 class="mb-3">عن المشروع</h2>
+      <p class="text-secondary">منصّة ويب للمزارعين في السودان: تشخيص مبدئي، طقس محلي، تقويم، تقدير إنتاجية، ومحادثة مساعدة.</p>
+      <div class="card glass p-3">
+        <ul class="list-unstyled m-0">
+          <li><strong>اسم الطالب:</strong> اكتب اسمك هنا</li>
+          <li><strong>الجامعة:</strong> اكتب اسم الجامعة</li>
+          <li><strong>وسيلة الاتصال:</strong> 09xxxxxxxx</li>
+          <li><strong>وصف قصير:</strong> مشروع تخرج لتطوير الزراعة الرقمية في السودان.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOGIN -->
+  <section id="login" class="auth-hero" hidden>
+    <div class="auth-bg"></div>
+    <div class="container position-relative" style="z-index:2">
+      <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-5">
+          <form id="loginForm" class="auth-card">
+            <h3 class="mb-2 fw-bold text-center">تسجيل الدخول</h3>
+            <p class="text-secondary text-center mb-3">مرحبًا بك! أدخل بياناتك للمتابعة.</p>
+            <label class="form-label">اسم المستخدم</label>
+            <input id="loginUser" name="username" class="form-control glass-inp" required placeholder="farmer123">
+            <label class="form-label mt-2">كلمة المرور</label>
+            <input id="loginPass" name="password" type="password" class="form-control glass-inp" required placeholder="••••••••">
+            <div class="d-flex justify-content-between align-items-center mt-2 small">
+              <label class="d-flex align-items-center gap-2">
+                <input id="remember" type="checkbox" name="remember" class="form-check-input" style="float:none"> تذكّرني
+              </label>
+              <a class="link-light" href="#">نسيت؟</a>
+            </div>
+            <button class="btn btn-mint w-100 mt-3">دخول</button>
+            <div class="text-center small mt-2">ما عندك حساب؟ <a href="#/register">إنشاء حساب</a></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REGISTER -->
+  <section id="register" class="auth-hero" hidden>
+    <div class="auth-bg"></div>
+    <div class="container position-relative" style="z-index:2">
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+          <form id="registerForm" class="auth-card">
+            <h3 class="mb-2 fw-bold text-center">تسجيل حساب جديد</h3>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">اسم المستخدم</label>
+                <input id="regUser" name="username" class="form-control glass-inp" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">الاسم الكامل</label>
+                <input id="regName" name="name" class="form-control glass-inp" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">البريد</label>
+                <input id="regEmail" name="email" type="email" class="form-control glass-inp">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">تاريخ الميلاد</label>
+                <input id="regDob" name="date_of_birth" type="date" class="form-control glass-inp" required>
+                <div class="form-text small">يشترط أن يكون العمر 10+.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">موقع المزرعة</label>
+                <input id="regFarm" name="farm_location" class="form-control glass-inp">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">وسيلة الاتصال</label>
+                <input id="regContact" name="contact_details" class="form-control glass-inp">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">كلمة المرور</label>
+                <input id="regPass" name="password" type="password" class="form-control glass-inp" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">تأكيد كلمة المرور</label>
+                <input id="regConf" name="confirm" type="password" class="form-control glass-inp" required>
+              </div>
+            </div>
+            <button class="btn btn-mint w-100 mt-3">تسجيل</button>
+            <div class="text-center small mt-2">عندي حساب؟ <a href="#/login">تسجيل دخول</a></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="text-center py-4 small">
+    © 2025 المزارع – مشروع تخرج
+  </footer>
+
+  <div id="toast"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ===== Tiny SPA Router (hash-based) =====
+    const routes = ['home','features','calendar','chat','about','login','register'];
+    function show(route){
+      routes.forEach(id => {
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.hidden = (id !== route);
+      });
+      // navbar auth items
+      const loggedIn = !!localStorage.getItem('loggedInUser');
+      document.getElementById('nav-login').classList.toggle('d-none', loggedIn);
+      document.getElementById('nav-register').classList.toggle('d-none', loggedIn);
+      document.getElementById('nav-logout').classList.toggle('d-none', !loggedIn);
+      // init 3D when entering home
+      if(route==='home'){ start3D(); }
+    }
+    function router(){
+      const h = location.hash.replace('#/','') || 'home';
+      if(!routes.includes(h)) return show('home');
+      show(h);
+    }
+    window.addEventListener('hashchange', router);
+    window.addEventListener('load', router);
+
+    // ===== Toast helper =====
+    function toast(msg){
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.display='block';
+      clearTimeout(t.__hide);
+      t.__hide = setTimeout(()=> t.style.display='none', 2500);
+    }
+
+    // ===== Auth (Front-end demo only) =====
+    function logout(){
+      localStorage.removeItem('loggedInUser');
+      toast('تم تسجيل الخروج.');
+      location.hash = '#/login';
+      router();
+    }
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const u = document.getElementById('loginUser').value.trim();
+      const p = document.getElementById('loginPass').value.trim();
+      if(!u || !p) return toast('أدخل اسم المستخدم وكلمة المرور');
+      localStorage.setItem('loggedInUser', u);
+      toast('تم تسجيل الدخول.');
+      location.hash = '#/home';
+      router();
+    });
+    // Register validation (age >= 10)
+    (function(){
+      const dob = document.getElementById('regDob');
+      if(!dob) return;
+      const now = new Date(); now.setFullYear(now.getFullYear()-10);
+      dob.max = now.toISOString().slice(0,10);
+    })();
+    document.getElementById('registerForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const pass = document.getElementById('regPass').value;
+      const conf = document.getElementById('regConf').value;
+      const dob  = document.getElementById('regDob').value;
+      if(pass !== conf) return toast('تأكيد كلمة المرور غير مطابق');
+      if(!dob) return toast('أدخل تاريخ الميلاد');
+      const age = (d => {
+        const t=new Date(); const b=new Date(d);
+        return t.getFullYear()-b.getFullYear()-((t.getMonth()<b.getMonth()||(t.getMonth()==b.getMonth()&&t.getDate()<b.getDate()))?1:0);
+      })(dob);
+      if(age < 10) return toast('العمر يجب أن يكون 10 سنوات أو أكثر');
+      toast('تم إنشاء الحساب — يمكنك تسجيل الدخول الآن.');
+      location.hash = '#/login';
+      router();
+    });
+
+    // ===== Calendar render =====
+    const calData = [
+      {m:'يناير', s:'شتاء', tips:['فحص ريّ خفيف + تسميد بسيط','تحضير لزراعة مبكرة حيث يلزم']},
+      {m:'فبراير', s:'شتاء', tips:['عزق ومكافحة حشائش','بطاطس/بقوليات – تسميد متوازن']},
+      {m:'مارس', s:'الصيف (دار وحاف)', tips:['بداية سخانة ظِل للشتلات','تجهيز أرض الصيف']},
+      {m:'أبريل', s:'الصيف (دار وحاف)', tips:['مطاعم/رامية صيفية','ذرة رفيعة مبكرة']},
+      {m:'مايو', s:'الصيف (دار وحاف)', tips:['استعداد للزرفة؛ صيانة مصارف','بذور مخزنة']},
+      {m:'يونيو', s:'الصيف (دار وحاف)', tips:['التحضير قبل الأمطار','رشّ وقائي ذرة/سمسم/فول']},
+      {m:'يوليو', s:'الخريف', tips:['بذر الزرفة: ذرة/سمسم/فول','كشف مصارف']},
+      {m:'أغسطس', s:'الخريف', tips:['بطح؛ وقت مناسب','تسميد ذرة/سمسم','وقاية فطرية']},
+      {m:'سبتمبر', s:'الخريف', tips:['نضج جزئي/جنيّ','ريّ خفيف']},
+      {m:'أكتوبر', s:'الخريف/آخر الصيف', tips:['مطاعم/رامية؛ بداية موسم','رقابة حشائش مبكرة']},
+      {m:'نوفمبر', s:'الشتاء', tips:['قمح/بقوليات','فول مصري/حمص']},
+      {m:'ديسمبر', s:'الشتاء', tips:['خضروات ورقية شتوية','ريّ خفيف']},
+    ];
+    function renderCalendar(){
+      const sel = document.getElementById('season')?.value || 'all';
+      const monthsEl = document.getElementById('months');
+      if(!monthsEl) return;
+      monthsEl.innerHTML = '';
+      calData.filter(x => sel==='all' || x.s===sel).forEach(x => {
+        const col = document.createElement('div');
+        col.className = 'col-md-4 col-lg-3';
+        col.innerHTML = `
+          <div class="card glass p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="badge text-bg-info">${x.s}</span>
+              <h5 class="m-0">${x.m}</h5>
+            </div>
+            <ul class="small text-secondary mb-0">${x.tips.map(t=>`<li>${t}</li>`).join('')}</ul>
+          </div>`;
+        monthsEl.appendChild(col);
+      });
+    }
+    document.getElementById('season')?.addEventListener('change', renderCalendar);
+    // render once when entering calendar
+    window.addEventListener('hashchange', ()=> { if(location.hash==='#/calendar') renderCalendar(); });
+
+    // ===== Chat (front-end demo) =====
+    (function(){
+      const chat = document.getElementById('chatbox');
+      const form = document.getElementById('chatForm');
+      const input = document.getElementById('msg');
+      const clearBtn = document.getElementById('clear');
+      if(!chat || !form) return;
+      clearBtn.onclick = ()=> chat.innerHTML='';
+      form.onsubmit = async () => {
+        const text = input.value.trim();
+        if(!text) return;
+        input.value='';
+        add('me', text);
+        setTimeout(()=> add('bot', 'سأجيبك حين يتم ربط الواجهة بالباك-إند 🌱 (استعمل /api/chat).'), 400);
+      };
+      function add(who, text){
+        const row = document.createElement('div');
+        row.className = 'bubble ' + who;
+        row.textContent = text;
+        chat.appendChild(row);
+        chat.scrollTop = chat.scrollHeight;
+      }
+    })();
+
+    // ===== 3D Hero (Three.js) =====
+    let _3dStarted = false;
+    function start3D(){
+      if(_3dStarted) return; _3dStarted = true;
+      const canvas = document.getElementById('farm3d');
+      if(!canvas || !window.THREE) return;
+      const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+      function resize(){
+        renderer.setSize(window.innerWidth, window.innerHeight * 0.7, false);
+      }
+      resize(); window.addEventListener('resize', resize);
+
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.Fog(0x0a2f2b, 8, 40);
+      const camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 100);
+      camera.position.set(0.6, 3.2, 7.5);
+      const hemi = new THREE.HemisphereLight(0xbcd7cc, 0x0a2f2b, 0.8);
+      scene.add(hemi);
+      const dir = new THREE.DirectionalLight(0xffffff, 0.8); dir.position.set(4,6,3); scene.add(dir);
+
+      const g = new THREE.PlaneGeometry(60, 60, 1, 1);
+      const m = new THREE.MeshStandardMaterial({color:0x0b5c50, roughness:0.9, metalness:0.05});
+      const ground = new THREE.Mesh(g, m); ground.rotation.x = -Math.PI/2; scene.add(ground);
+
+      const rowMat = new THREE.MeshStandardMaterial({color:0x07443d, roughness:1});
+      for(let i=-15;i<=15;i+=1.5){
+        const r = new THREE.Mesh(new THREE.BoxGeometry(60, .06, .4), rowMat);
+        r.position.set(0, 0.03, i);
+        scene.add(r);
+      }
+      const trunkMat = new THREE.MeshStandardMaterial({color:0x3c2f2f});
+      const crownMat = new THREE.MeshStandardMaterial({color:0x2c7a3f, roughness:1});
+      function addTree(x, z){
+        const t = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, .6, 8), trunkMat);
+        t.position.set(x, .3, z); scene.add(t);
+        const c = new THREE.Mesh(new THREE.DodecahedronGeometry(.35, 0), crownMat);
+        c.position.set(x, .8, z); scene.add(c);
+      }
+      for(let i=0;i<18;i++){ addTree(-5 + Math.random()*10, -8 + Math.random()*16); }
+
+      const clock = new THREE.Clock();
+      function loop(){
+        requestAnimationFrame(loop);
+        const t = clock.getElapsedTime();
+        camera.position.x = Math.sin(t*0.15)*1.2;
+        camera.lookAt(0,0,0);
+        renderer.render(scene, camera);
+      }
+      loop();
+    }
+  </script>
+</body>
+</html>
