@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>تقدير الإنتاجية والربح</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root{
+      --bg: url("https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?q=80&w=2560&auto=format&fit=crop");
+      --green:#2e7d32; --green-dark:#1b5e20; --leaf:#66bb6a;
+      --text:#eef6ee; --muted:#cfe3cf; --panel:#1b241b; --panel2:#223022; --line:#537353;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:"Segoe UI",Tahoma,Arial,sans-serif; color:var(--text);
+      background:
+        radial-gradient(1100px 600px at 80% 20%, rgba(46,125,50,.18), transparent 60%),
+        radial-gradient(900px 500px at 15% 85%, rgba(141,110,99,.10), transparent 60%),
+        var(--bg) center/cover fixed no-repeat;
+      min-height:100vh; display:flex; flex-direction:column;
+    }
+    header{position:sticky;top:0;z-index:10;background:rgba(18,24,18,.92);border-bottom:1px solid rgba(255,255,255,.12)}
+    .nav{max-width:1200px;margin:auto;padding:10px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .nav a{color:#e9f7e9;text-decoration:none;padding:8px 10px;border-radius:10px;opacity:.9}
+    .nav a:hover{background:rgba(255,255,255,.06);opacity:1}
+    .current{background:rgba(46,125,50,.25);border:1px solid rgba(46,125,50,.5)}
+    main{flex:1;padding:24px}
+    .container{max-width:1200px;margin:auto;display:grid;gap:18px;grid-template-columns:1fr}
+    @media(min-width:1100px){ .container{grid-template-columns: 2fr 1fr} }
+
+    .card{background:linear-gradient(180deg,rgba(27,36,27,.92),rgba(27,36,27,.82)),var(--panel);
+      border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:16px;box-shadow:0 20px 40px rgba(0,0,0,.45)}
+    label{font-weight:600;font-size:14px}
+    input,select{background:var(--panel2);color:var(--text);border:1px solid rgba(255,255,255,.18);
+      border-radius:10px;padding:8px 10px;width:100%}
+    input:focus,select:focus{border-color:rgba(46,125,50,.75);box-shadow:0 0 0 3px rgba(46,125,50,.22);outline:none}
+    .row{display:grid;gap:12px}
+    .row-2{grid-template-columns:1fr 1fr}
+    .row-3{grid-template-columns:1fr 1fr 1fr}
+    .btn{padding:10px 14px;border:0;border-radius:10px;cursor:pointer;font-weight:700;color:#fff;
+      background:linear-gradient(180deg,var(--green),var(--green-dark));box-shadow:0 10px 20px rgba(46,125,50,.35)}
+    .btn.secondary{background:#2a372a}
+    .hint{color:var(--muted);font-size:12px}
+    .good{color:#9ee19e} .bad{color:#ffb3b3}
+    .card--compact .card-body{padding:10px 12px}
+    .chart-wrap{height:140px;max-height:160px;position:relative}
+    #yieldChart{height:100%!important;width:100%!important}
+    footer{padding:12px;text-align:center;font-size:12px;color:#e6efe6}
+  </style>
+<style>
+/* === Scoped Navbar (.ag-*) — لا يغير أي ستايل آخر === */
+.ag-navbar{position:sticky;top:0;z-index:1000;background:rgba(15,18,20,.85);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.08)}
+.ag-container{max-width:1200px;margin:auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ag-brand{display:inline-flex;align-items:center;gap:8px;color:#e6f2ea;text-decoration:none;font-size:16px}
+.ag-logo{width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,#2e7d32,#6dd37b);display:inline-block}
+.ag-nav{display:flex;flex-wrap:wrap;gap:8px}
+.ag-link{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:#0e1316;color:#dff3e7;text-decoration:none;font-size:13px}
+.ag-link:hover{background:#121a15}
+@media (max-width:900px){
+  .ag-nav{gap:6px}
+  .ag-link{font-size:12px;padding:7px 10px}
+}
+</style>
+</head>
+<body>
+<header class="ag-navbar" role="banner">
+  <div class="ag-container">
+    <a class="ag-brand" href="home.html" aria-label="العودة للصفحة الرئيسية">
+      <span class="ag-logo" aria-hidden="true"></span>
+      <strong>منصة المزارع</strong>
+    </a>
+    <nav class="ag-nav" role="navigation" aria-label="التنقل الرئيسي">
+      <a class="ag-link" href="home.html">الرئيسية</a><a class="ag-link" href="profile.html">الملف الشخصي</a><a class="ag-link" href="weather.html">التقويم والطقس</a><a class="ag-link" href="yield.html">تقرير الإنتاجية</a><a class="ag-link" href="assess.html">التشخيص</a><a class="ag-link" href="assistant.html">المساعد</a><a class="ag-link" href="about.html">عن المنصة</a><a class="ag-link" href="login.html">تسجيل الدخول</a><a class="ag-link" href="register.html">تسجيل حساب</a>
+    </nav>
+  </div>
+</header>
+
+
+<header>
+  <nav class="nav">
+    <div class="brand">🌱 المزارع</div>
+    <a href="/">الرئيسية</a>
+    <a href="/assess">تشخيص</a>
+    <a href="/weather">التقويم الزراعي</a>
+    <a href="/yield" class="current">إنتاجية</a>
+    <a href="/assistant">مساعد</a>
+    <a href="/about">تعريف</a>
+    <span class="spacer"></span>
+    <a href="/profile">الملف الشخصي</a>
+    <span class="sep">|</span>
+    <a href="/{{ url_for('auth.logout') if false else '#' }}">تسجيل خروج</a>
+  </nav>
+</header>
+
+<main>
+  <div class="container">
+    <!-- يسار: إدخال + نتيجة -->
+    <section class="card">
+      <h2>تقدير الإنتاجية والربح</h2>
+
+      <!-- 1) اختيار المحصول/المساحة/التاريخ -->
+      <div class="row row-3">
+        <label>المحصول
+          <select id="crop">
+            <option>ذرة رفيعة</option>
+            <option>ذرة شامية</option>
+            <option>قمح</option>
+            <option>دخن</option>
+            <option>سمسم</option>
+            <option>فول سوداني</option>
+            <option>دوار الشمس</option>
+            <option>طماطم</option>
+            <option>بطاطس</option>
+            <option>بصل</option>
+            <option>بطيخ</option>
+            <option>شمام</option>
+          </select>
+        </label>
+        <label>المساحة (هكتار)
+          <input type="number" id="area" min="0" step="0.01" placeholder="هكتار">
+        </label>
+        <label>تاريخ الزراعة
+          <input type="date" id="start">
+        </label>
+      </div>
+
+      <!-- 2) طريقة الري + خصوبة التربة -->
+      <div class="row row-2" style="margin-top:10px">
+        <label>طريقة الري
+          <select id="irrigation">
+            <option value="rainfed">مطري</option>
+            <option value="pivot">محوري</option>
+            <option value="furrow">أنهار/أحواض</option>
+            <option value="drip">تنقيط</option>
+          </select>
+        </label>
+        <label>خصوبة التربة
+          <select id="soil">
+            <option value="poor">ضعيفة</option>
+            <option value="medium" selected>متوسطة</option>
+            <option value="rich">غنية</option>
+          </select>
+        </label>
+      </div>
+
+      <!-- 3) الأسعار والعملة -->
+      <div class="row row-3" style="margin-top:10px">
+        <label>مصدر السعر/طن
+          <select id="priceSource">
+            <option value="auto">تلقائي (جدول داخلي بالدولار)</option>
+            <option value="manual">يدوي</option>
+          </select>
+        </label>
+        <label>السعر اليدوي/طن
+          <input type="number" id="manualPrice" step="0.01" placeholder="قيمة إن اخترت يدوي">
+        </label>
+        <label>العملة
+          <select id="currency">
+            <option value="USD" selected>USD</option>
+            <option value="SDG">SDG</option>
+          </select>
+        </label>
+      </div>
+      <div class="row row-2">
+        <label>سعر الصرف (SDG لكل 1 USD)
+          <input type="number" id="fx" step="0.01" value="900">
+        </label>
+        <div class="hint" style="align-self:end">تقدر تغيّر سعر الصرف يدويًا — الحسابات تتحدث فورًا.</div>
+      </div>
+
+      <!-- 4) تكاليف/هكتار -->
+      <h3 style="margin-top:14px">تكاليف تقديرية (لكل هكتار)</h3>
+      <div class="row row-3">
+        <label>بذور/شتلات
+          <input type="number" id="c_seed" step="0.01" value="30">
+        </label>
+        <label>أسمدة ومحسنات
+          <input type="number" id="c_fert" step="0.01" value="60">
+        </label>
+        <label>ري/وقود/طاقة
+          <input type="number" id="c_irrig" step="0.01" value="40">
+        </label>
+      </div>
+      <div class="row row-2" style="margin-top:8px">
+        <label>عمالة وخدمات
+          <input type="number" id="c_labor" step="0.01" value="50">
+        </label>
+        <label>أخرى
+          <input type="number" id="c_other" step="0.01" value="20">
+        </label>
+      </div>
+
+      <!-- أزرار -->
+      <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap">
+        <button class="btn" id="btnCalc">احسب الإنتاجية والربح</button>
+        <button class="btn secondary" id="btnSave">حفظ في السجل</button>
+      </div>
+
+      <!-- النتيجة -->
+      <div id="result" class="card" style="margin-top:14px; background:rgba(20,30,20,.6)">
+        <h3>النتيجة</h3>
+        <div id="resText" class="hint">أكمل المدخلات واضغط “احسب”.</div>
+      </div>
+
+      <!-- مخطط صغير -->
+      <div class="card mt-3 shadow-sm card--compact">
+        <div class="card-body">
+          <h6 class="card-title mb-2">مخطط الإنتاجية (حسب السجل)</h6>
+          <div class="chart-wrap">
+            <canvas id="yieldChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- يمين: طقس اليوم + السجل -->
+    <aside class="card">
+      <h3>طقس اليوم — ود مدني</h3>
+      <ul id="wx" class="hint" style="list-style:none;padding:0;margin:0 0 10px 0">
+        <li>جاري الجلب…</li>
+      </ul>
+
+      <h3>سجل النتائج</h3>
+      <div class="hint">السجل محفوظ محليًا في المتصفح.</div>
+      <div style="margin:8px 0; display:flex; gap:6px; flex-wrap:wrap">
+        <button class="btn secondary" id="btnReload">تحديث السجل</button>
+        <button class="btn secondary" id="btnClear">مسح السجل</button>
+      </div>
+      <div id="hist" class="hint">لا توجد بيانات بعد.</div>
+    </aside>
+  </div>
+</main>
+
+<footer>khabab and ahmd @2025</footer>
+
+<script>
+/* ================== أسعار سوق تقريبية (USD/طن) ==================
+   — غيّرها حسب السوق عندك. */
+const MARKET_PRICES_USD = {
+  "قمح": 320, "ذرة رفيعة": 280, "ذرة شامية": 300, "دخن": 260,
+  "سمسم": 1500, "فول سوداني": 900, "دوار الشمس": 500,
+  "طماطم": 200, "بطاطس": 220, "بصل": 180, "بطيخ": 120, "شمام": 140
+};
+
+/* إنتاجية أساس (طن/هكتار) تقريبية — عدّلها محليًا */
+const BASE_YIELDS = {
+  "ذرة رفيعة": 1.8, "ذرة شامية": 3.5, "قمح": 2.0, "دخن": 1.2,
+  "سمسم": 0.8, "فول سوداني": 2.2, "دوار الشمس": 1.4,
+  "طماطم": 30, "بطاطس": 20, "بصل": 18, "بطيخ": 20, "شمام": 18
+};
+const IRR_FACTORS = { rainfed:0.85, pivot:1.1, furrow:1.0, drip:1.15 };
+const SOIL_FACTORS = { poor:0.85, medium:1.0, rich:1.12 };
+
+/* طقس اليوم (Open-Meteo) — مدني */
+async function loadWeather(){
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=14.4012&longitude=33.5199&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Africa%2FKhartoum`;
+  const ul = document.getElementById('wx');
+  ul.innerHTML = '<li>جاري الجلب…</li>';
+  try{
+    const r = await fetch(url); const j = await r.json();
+    const c = j.current||{}; const d0=0;
+    ul.innerHTML = `
+      <li>الحرارة الآن: <b>${c.temperature_2m??'—'}°C</b></li>
+      <li>الرطوبة: <b>${c.relative_humidity_2m??'—'}%</b></li>
+      <li>الرياح: <b>${c.wind_speed_10m??'—'} كم/س</b></li>
+      <li>العظمى/الصغرى: <b>${j.daily?.temperature_2m_max?.[d0]??'—'}° / ${j.daily?.temperature_2m_min?.[d0]??'—'}°</b></li>
+      <li>مطر اليوم: <b>${j.daily?.precipitation_sum?.[d0]??'—'} مم</b></li>`;
+    return { tmax:j.daily?.temperature_2m_max?.[d0], rain:j.daily?.precipitation_sum?.[d0] };
+  }catch(e){ ul.innerHTML='<li class="bad">تعذّر جلب الطقس.</li>'; return {}; }
+}
+
+/* حساب الإنتاجية (طن/هـ) */
+function computeYieldPerHa(crop, irrigation, soil, meteo){
+  const base = BASE_YIELDS[crop] ?? 1.5;
+  const irr = IRR_FACTORS[irrigation] ?? 1.0;
+  const s   = SOIL_FACTORS[soil] ?? 1.0;
+  let wx = 1.0;
+  if(meteo?.tmax!=null){
+    const t = Number(meteo.tmax);
+    if(t < 18) wx = 0.92;
+    else if(t > 41) wx = 0.9;
+    else if(t >= 36) wx = 0.95;
+  }
+  return base * irr * s * wx;
+}
+
+/* تحويل السعر لعملة مختارة */
+function pricePerTon(crop, src, manual, cur, fx){
+  let usd = src==='manual' ? Number(manual||0) : (MARKET_PRICES_USD[crop] ?? 0);
+  if(cur==='USD') return usd;
+  return usd * Number(fx||0);
+}
+
+/* التوصيات */
+function advice(crop, soil, irrigation, yph){
+  const arr=[];
+  if(soil==='poor') arr.push('التربة ضعيفة: أضف 30 كجم N/هـ + فوسفور تأسيسي.');
+  if(irrigation==='rainfed') arr.push('مطري: راقب الأعشاب مبكرًا وصرف المياه.');
+  if(/طماطم|بطيخ|شمام|بصل/.test(crop)) arr.push('ارفع البوتاسيوم من بداية العقد لتحسين الجودة.');
+  if(yph < (BASE_YIELDS[crop]??1.5)*0.9) arr.push('الإنتاجية المتوقعة دون المرجع: راجع الكثافة والسماد والري.');
+  return arr.length? '• ' + arr.join(' — ') : 'لا توصيات إضافية.';
+}
+
+/* UI */
+const chartCtx = document.getElementById('yieldChart');
+let chart;
+const storeKey='yield_hist_v1';
+
+function updateChart(){
+  const hist = JSON.parse(localStorage.getItem(storeKey)||'[]');
+  const labels = hist.map(x=>x.ts);
+  const data   = hist.map(x=>x.total);
+  if(chart) chart.destroy();
+  chart = new Chart(chartCtx, {
+    type:'line',
+    data:{ labels, datasets:[{label:'طن إجمالي', data, tension:.35, pointRadius:2, borderWidth:2}] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{font:{size:10}},grid:{display:false}},
+        y:{beginAtZero:true,ticks:{font:{size:10}},grid:{color:'rgba(255,255,255,.08)'}}
+      },
+      elements:{line:{borderColor:'#66bb6a'},point:{backgroundColor:'#66bb6a'}}
+    }
+  });
+}
+
+function renderHistory(){
+  const wrap=document.getElementById('hist');
+  const hist = JSON.parse(localStorage.getItem(storeKey)||'[]');
+  if(!hist.length){ wrap.innerHTML='لا توجد بيانات بعد.'; return; }
+  wrap.innerHTML = hist.slice(-200).reverse().map(h=>`
+    <div style="display:flex;justify-content:space-between;border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:6px 10px;margin:6px 0;background:rgba(34,48,34,.6)">
+      <div>${h.ts} — ${h.crop} — ${h.area} هـ — ${h.irrigation}/${h.soil}</div>
+      <div><b>${h.total.toFixed(2)}</b> طن</div>
+    </div>
+  `).join('');
+}
+
+async function calc(){
+  const crop = document.getElementById('crop').value;
+  const area = Number(document.getElementById('area').value||0);
+  const start= document.getElementById('start').value;
+  const irrigation = document.getElementById('irrigation').value;
+  const soil = document.getElementById('soil').value;
+  const src = document.getElementById('priceSource').value;
+  const manual = document.getElementById('manualPrice').value;
+  const cur = document.getElementById('currency').value;
+  const fx  = Number(document.getElementById('fx').value||0);
+
+  if(!crop||!area||!start){ alert('أكمل المحصول/المساحة/التاريخ'); return; }
+
+  const meteo = await loadWeather();
+  const yph = computeYieldPerHa(crop, irrigation, soil, meteo);
+  const totalYield = yph * area;
+
+  const priceTon = pricePerTon(crop, src, manual, cur, fx); // بالعملة المختارة
+  const revenue  = totalYield * priceTon;
+
+  const c = {
+    seed:Number(document.getElementById('c_seed').value||0),
+    fert:Number(document.getElementById('c_fert').value||0),
+    irrig:Number(document.getElementById('c_irrig').value||0),
+    labor:Number(document.getElementById('c_labor').value||0),
+    other:Number(document.getElementById('c_other').value||0)
+  };
+  const costPerHa = c.seed+c.fert+c.irrig+c.labor+c.other;
+  const totalCost = costPerHa * area;
+  const profit    = revenue - totalCost;
+
+  const sym = cur==='USD'?'$':'SDG';
+  const res = document.getElementById('resText');
+  res.innerHTML = `
+    <div><b>المحصول:</b> ${crop} — <b>المساحة:</b> ${area} هـ — <b>الري:</b> ${irrigation} — <b>التربة:</b> ${soil}</div>
+    <div style="margin-top:6px">الإنتاجية: <b>${yph.toFixed(2)} طن/هـ</b> ⇒ إجمالي: <b>${totalYield.toFixed(2)} طن</b></div>
+    <div class="hint">السعر/طن: <b>${priceTon.toFixed(2)} ${sym}</b> (${src==='manual'?'يدوي':'تلقائي'}) — الإيراد: <b>${revenue.toFixed(2)} ${sym}</b></div>
+    <div class="hint">تكلفة/هـ: <b>${costPerHa.toFixed(2)} ${sym}</b> ⇒ إجمالي التكلفة: <b>${totalCost.toFixed(2)} ${sym}</b></div>
+    <div style="margin-top:6px;font-size:18px">
+      الربح: <b class="${profit>=0?'good':'bad'}">${profit.toFixed(2)} ${sym}</b>
+    </div>
+    <div class="hint" style="margin-top:6px">توصيات: ${advice(crop, soil, irrigation, yph)}</div>
+  `;
+
+  return { crop, area, irrigation, soil, yph, totalYield, priceTon, revenue, totalCost, profit, currency:cur };
+}
+
+document.getElementById('btnCalc').addEventListener('click', async()=>{ await calc(); });
+
+document.getElementById('btnSave').addEventListener('click', async ()=>{
+  const r = await calc(); if(!r) return;
+  const hist = JSON.parse(localStorage.getItem(storeKey)||'[]');
+  hist.push({ ts:new Date().toLocaleString('ar-SD'), crop:r.crop, area:r.area, irrigation:r.irrigation, soil:r.soil, total:r.totalYield });
+  localStorage.setItem(storeKey, JSON.stringify(hist));
+  renderHistory(); updateChart();
+});
+
+document.getElementById('btnPrint').addEventListener('click', ()=>window.print());
+document.getElementById('btnReload').addEventListener('click', ()=>{ renderHistory(); updateChart(); });
+document.getElementById('btnClear').addEventListener('click', ()=>{ if(confirm('مسح السجل نهائيًا؟')){ localStorage.removeItem(storeKey); renderHistory(); updateChart(); } });
+
+/* بدأ الصفحة */
+loadWeather(); renderHistory(); updateChart();
+</script>
+</body>
+</html>
