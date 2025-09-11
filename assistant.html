@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>مساعد المحادثة — المزارع</title>
+  <style>
+    :root{
+      --bg:url("https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?q=80&w=2560&auto=format&fit=crop");
+      --green:#2e7d32; --green-dark:#1b5e20; --leaf:#66bb6a;
+      --text:#eef6ee; --muted:#cfe3cf; --panel:#0f1710; --panel2:#192217;
+      --border:rgba(255,255,255,.14);
+      /* ألوان فقاعات عالية التباين */
+      --you-bg:#13283e;   --you-fg:#eef6ff;   /* أنت */
+      --bot-bg:#1b2b1b;   --bot-fg:#e9f7e9;   /* المساعد */
+      --typing-bg:#2a332a;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:"Segoe UI",Tahoma,Arial,sans-serif; color:var(--text);
+      background:
+        radial-gradient(1100px 600px at 80% 20%, rgba(46,125,50,.18), transparent 60%),
+        radial-gradient(900px 500px at 15% 85%, rgba(141,110,99,.10), transparent 60%),
+        var(--bg) center/cover fixed no-repeat;
+      display:flex; flex-direction:column; min-height:100vh;
+    }
+    /* NAV */
+    header{position:sticky; top:0; z-index:10; background:rgba(18,24,18,.92); border-bottom:1px solid var(--border)}
+    .nav{max-width:1200px; margin:auto; padding:10px 16px; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+    .brand{font-weight:800}
+    .nav a{color:#e9f7e9; text-decoration:none; padding:8px 10px; border-radius:10px; opacity:.9}
+    .nav a:hover{background:rgba(255,255,255,.06); opacity:1}
+    .current{background:rgba(46,125,50,.25); border:1px solid rgba(46,125,50,.5)}
+    .spacer{flex:1} .sep{opacity:.35; margin:0 6px}
+
+    /* LAYOUT */
+    main{flex:1; padding:18px}
+    .shell{max-width:1200px; margin:auto; display:grid; gap:16px; grid-template-columns: 320px 1fr}
+    @media (max-width:1050px){ .shell{grid-template-columns:1fr} .side{order:2} }
+
+    .card{
+      background:linear-gradient(180deg, rgba(27,36,27,.94), rgba(27,36,27,.86)), var(--panel);
+      border:1px solid var(--border); border-radius:16px; padding:14px;
+      box-shadow:0 18px 36px rgba(0,0,0,.42)
+    }
+
+    /* CHAT */
+    .chat{
+      display:flex; flex-direction:column; gap:10px;
+      height:60vh; min-height:360px; overflow:auto; padding:10px;
+      border:1px solid var(--border); border-radius:12px;
+      background:linear-gradient(180deg, rgba(15,23,16,.88), rgba(20,28,19,.82));
+    }
+    .row{display:flex; gap:8px; align-items:flex-start}
+    .row.you{justify-content:flex-end}
+    .avatar{
+      width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-size:18px;
+      background:#214021; border:1px solid var(--border)
+    }
+    .bubble{
+      max-width:75ch; line-height:1.8; padding:12px 14px; border-radius:14px;
+      box-shadow:0 10px 22px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.12);
+      white-space:pre-wrap; word-wrap:break-word; font-size:15.5px;
+    }
+    .you .bubble{background:var(--you-bg); color:var(--you-fg)}
+    .bot .bubble{background:var(--bot-bg); color:var(--bot-fg)}
+    .meta{font-size:.75rem; color:#a9b8a9; opacity:.85; margin-top:4px; text-align:left}
+    .tools{display:flex; gap:6px; margin-top:4px}
+    .tool{border:0; border-radius:8px; padding:4px 8px; cursor:pointer; background:#1f2a1f; color:var(--muted)}
+    .tool:hover{background:#243424}
+
+    /* composer */
+    .composer{display:flex; gap:10px; align-items:center; position:sticky; bottom:0; margin-top:12px}
+    .composer textarea{
+      flex:1; resize:none; min-height:48px; max-height:160px;
+      border-radius:12px; border:1px solid var(--border);
+      background:var(--panel2); color:var(--text); padding:12px
+    }
+    .btn{
+      padding:10px 14px; border:0; border-radius:10px; color:#fff; font-weight:800; cursor:pointer;
+      background:linear-gradient(180deg,var(--green),var(--green-dark));
+      box-shadow:0 10px 22px rgba(46,125,50,.35)
+    }
+    .btn.secondary{background:#2a372a}
+    .btn:disabled{opacity:.6; cursor:not-allowed}
+
+    /* typing dots */
+    .typing{display:none; align-items:center; gap:6px}
+    .bubble-typing{background:var(--typing-bg); color:#cfe3cf; border:1px solid var(--border);
+      border-radius:16px; padding:6px 10px; display:flex; align-items:center; gap:4px; min-width:46px}
+    .dot{width:6px;height:6px;border-radius:50%;background:#cfe3cf;opacity:.4;animation:blink 1.4s infinite}
+    .dot:nth-child(2){animation-delay:.2s}
+    .dot:nth-child(3){animation-delay:.4s}
+    @keyframes blink{0%,80%,100%{opacity:.3;transform:translateY(0)}40%{opacity:1;transform:translateY(-2px)}}
+
+    /* Sidebar */
+    .side .h{font-weight:800; color:var(--muted); margin:6px 0}
+    .preset{display:block; width:100%; text-align:right; padding:10px 12px; margin:6px 0;
+      border-radius:10px; background:#223022; border:1px solid var(--border); color:#e9f7e9; cursor:pointer}
+    .preset:hover{background:#263626}
+
+    footer{padding:12px; text-align:center; font-size:12px; color:#e6efe6}
+  </style>
+<style>
+
+/* ===== Auth Modal Shell (scoped .auth-*) ===== */
+.auth-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);display:none;z-index:9998}
+.auth-wrap{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:9999;direction:rtl}
+.auth-card{width:min(980px,96vw);border-radius:22px;overflow:hidden}
+.auth-tabs{display:flex;gap:8px;padding:10px 16px;border-bottom:1px dashed rgba(255,255,255,.12);flex-wrap:wrap;background:rgba(16,22,16,.8)}
+.auth-tab{cursor:pointer;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:#0f1612;color:#e6f2ea}
+.auth-tab.active{background:linear-gradient(135deg,#132016,#0c1510)}
+.auth-close{position:absolute;top:10px;left:10px;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:#0f1612;color:#e6f2ea;cursor:pointer}
+.auth-panel.hidden{display:none}
+@media (max-width:900px){.auth-card{width:94vw}}
+
+
+  :root{
+    --bg: url("https://images.pexels.com/photos/51947/tuscany-grape-field-nature-51947.jpeg"); /* حقول */
+    --green:#2e7d32; --green-dark:#1b5e20; --text:#f1f7f1; --muted:#d7e6d7;
+    --card:#1a221a; /* خلفية البطاقة */
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family:"Segoe UI",Tahoma,Arial,sans-serif; color:var(--text);
+    background:
+      radial-gradient(1100px 600px at 80% 20%, rgba(46,125,50,.18), transparent 60%),
+      radial-gradient(900px 500px at 15% 85%, rgba(141,110,99,.10), transparent 60%),
+      var(--bg) center/cover fixed no-repeat;
+    display:flex; flex-direction:column; min-height:100dvh; overflow-x:hidden;
+  }
+
+  /* شريط علوي واضح وثابت */
+  .topbar{
+    position:sticky; top:0; z-index:10;
+    background:rgba(15,20,15,.92); backdrop-filter:saturate(120%);
+    border-bottom:1px solid rgba(255,255,255,.12);
+  }
+  .nav{
+    max-width:1100px; margin:auto; padding:10px 16px;
+    display:flex; align-items:center; gap:16px;
+  }
+  .brand{font-weight:800; letter-spacing:.3px}
+  .nav a{color:#e9f7e9; text-decoration:none; padding:8px 10px; border-radius:10px; opacity:.9}
+  .nav a:hover{background:rgba(255,255,255,.06); opacity:1}
+  .nav .spacer{flex:1}
+  .nav .current{background:rgba(46,125,50,.25); border:1px solid rgba(46,125,50,.5)}
+
+  /* فلاش */
+  .alerts{max-width:min(92vw,560px); margin:14px auto 0}
+  .alert{padding:12px 14px; border-radius:12px; background:#f8d7da; color:#7b1f24; border:1px solid #f1aeb5}
+
+  /* الحاوية والبطاقة */
+  .wrap{flex:1; display:grid; place-items:center; perspective:1200px; padding:24px}
+  .auth-body .card{
+    width:min(92vw,560px); padding:32px; border-radius:22px;
+    background:linear-gradient(180deg, rgba(26,34,26,.92), rgba(26,34,26,.82)), var(--card);
+    border:1px solid rgba(255,255,255,.18);
+    box-shadow:0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
+    transform-style:preserve-3d; transition:transform .15s ease, box-shadow .2s ease
+  }
+  h1{margin:0 0 20px; font-size:32px; text-align:center}
+  .auth-body .field{margin:14px 0; text-align:right}
+  label{display:block; margin:0 0 6px; color:var(--muted); font-size:14px}
+  .auth-body .input{
+    width:100%; padding:16px; font-size:16px;
+    border-radius:14px; border:1px solid rgba(255,255,255,.22);
+    background:#243024; color:var(--text); outline:none; transition:.2s
+  }
+  .input::placeholder{color:#cfe3cf}
+  .input:focus{
+    border-color:rgba(46,125,50,.85);
+    box-shadow:0 0 0 4px rgba(46,125,50,.22);
+    background:#2a372a
+  }
+  .auth-body .row{display:flex; align-items:center; justify-content:space-between; gap:10px; color:var(--muted); font-size:14px}
+
+  .auth-body .btn{
+    width:100%; margin-top:16px; padding:16px; border:0; border-radius:16px; cursor:pointer;
+    font-weight:800; font-size:17px; color:#fff;
+    background:linear-gradient(180deg,var(--green),var(--green-dark));
+    box-shadow:0 12px 22px rgba(46,125,50,.35), inset 0 1px 0 rgba(255,255,255,.25);
+    transform:translateZ(30px); transition:transform .12s ease, filter .12s ease, box-shadow .12s ease
+  }
+  .btn:hover{filter:brightness(1.05)}
+  .btn:active{transform:translateZ(20px) scale(.99); box-shadow:0 8px 16px rgba(46,125,50,.4)}
+
+  .auth-body .switch{margin-top:12px; text-align:center; font-size:14px}
+  .auth-body .switch a{color:#e9f7e9; font-weight:700; text-decoration:none}
+  .auth-body .switch a:hover{text-decoration:underline}
+
+  footer{padding:12px 0 18px; text-align:center; font-size:12px; color:#e6efe6}
+
+
+/* === Scoped Navbar (.ag-*) — لا يغير أي ستايل آخر === */
+.ag-navbar{position:sticky;top:0;z-index:1000;background:rgba(15,18,20,.85);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.08)}
+.ag-container{max-width:1200px;margin:auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ag-brand{display:inline-flex;align-items:center;gap:8px;color:#e6f2ea;text-decoration:none;font-size:16px}
+.ag-logo{width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,#2e7d32,#6dd37b);display:inline-block}
+.ag-nav{display:flex;flex-wrap:wrap;gap:8px}
+.ag-link{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:#0e1316;color:#dff3e7;text-decoration:none;font-size:13px}
+.ag-link:hover{background:#121a15}
+@media (max-width:900px){
+  .ag-nav{gap:6px}
+  .ag-link{font-size:12px;padding:7px 10px}
+}
+
+
+  :root{
+    --bg: url("https://images.pexels.com/photos/51947/tuscany-grape-field-nature-51947.jpeg"); /* قمح */
+    --green:#2e7d32; --green-dark:#1b5e20; --text:#f1f7f1; --muted:#d7e6d7;
+    --card:#1a221a;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family:"Segoe UI",Tahoma,Arial,sans-serif; color:var(--text);
+    background:
+      radial-gradient(1100px 600px at 80% 20%, rgba(46,125,50,.18), transparent 60%),
+      radial-gradient(900px 500px at 15% 85%, rgba(141,110,99,.10), transparent 60%),
+      var(--bg) center/cover fixed no-repeat;
+    display:flex; flex-direction:column; min-height:100dvh; overflow-x:hidden;
+  }
+
+  .topbar{position:sticky; top:0; z-index:10; background:rgba(15,20,15,.92); border-bottom:1px solid rgba(255,255,255,.12)}
+  .nav{max-width:1100px; margin:auto; padding:10px 16px; display:flex; align-items:center; gap:16px}
+  .brand{font-weight:800}
+  .nav a{color:#e9f7e9; text-decoration:none; padding:8px 10px; border-radius:10px; opacity:.9}
+  .nav a:hover{background:rgba(255,255,255,.06); opacity:1}
+  .nav .spacer{flex:1}
+  .nav .current{background:rgba(46,125,50,.25); border:1px solid rgba(46,125,50,.5)}
+
+  .alerts{max-width:min(96vw,980px); margin:14px auto 0}
+  .alert{padding:12px 14px; border-radius:12px; background:#f8d7da; color:#7b1f24; border:1px solid #f1aeb5}
+
+  .wrap{flex:1; display:grid; place-items:center; perspective:1200px; padding:24px}
+  .auth-body .card{
+    width:min(96vw,980px); padding:32px; border-radius:22px;
+    background:linear-gradient(180deg, rgba(26,34,26,.92), rgba(26,34,26,.82)), var(--card);
+    border:1px solid rgba(255,255,255,.18);
+    box-shadow:0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
+    transform-style:preserve-3d; transition:transform .15s ease, box-shadow .2s ease
+  }
+  h1{margin:0 0 18px; font-size:30px; text-align:center}
+
+  .auth-body .grid{display:grid; grid-template-columns:1fr; gap:14px}
+  @media (min-width:720px){ .auth-body .grid{ grid-template-columns:1fr 1fr; } }
+
+  .auth-body .field{display:flex; flex-direction:column; gap:6px}
+  .auth-body .label{color:var(--muted); font-size:14px}
+  .auth-body .input{
+    width:100%; padding:16px; font-size:16px;
+    border-radius:14px; border:1px solid rgba(255,255,255,.22);
+    background:#243024; color:var(--text); outline:none; transition:.2s
+  }
+  .input::placeholder{color:#cfe3cf}
+  .input:focus{ border-color:rgba(46,125,50,.85); box-shadow:0 0 0 4px rgba(46,125,50,.22); background:#2a372a }
+  .error{color:#ffb3b3; font-size:12px}
+
+  .auth-body .row{display:flex; gap:12px; margin-top:10px}
+  .auth-body .row .auth-body .btn{flex:1}
+
+  .auth-body .btn{
+    padding:16px; border:0; border-radius:16px; cursor:pointer;
+    font-weight:800; font-size:17px; color:#fff;
+    background:linear-gradient(180deg,var(--green),var(--green-dark));
+    box-shadow:0 12px 22px rgba(46,125,50,.35), inset 0 1px 0 rgba(255,255,255,.25);
+    transform:translateZ(30px); transition:transform .12s ease, filter .12s ease, box-shadow .12s ease
+  }
+  .btn:hover{filter:brightness(1.05)}
+  .btn:active{transform:translateZ(20px) scale(.99); box-shadow:0 8px 16px rgba(46,125,50,.4)}
+
+  .muted-link{display:block; text-align:center; padding:16px; border-radius:16px;
+    background:#243024; border:1px solid rgba(255,255,255,.22); color:#e9f7e9; text-decoration:none}
+  .muted-link:hover{text-decoration:underline}
+
+  footer{padding:12px 0 18px; text-align:center; font-size:12px; color:#e6efe6}
+
+
+/* === Scoped Navbar (.ag-*) — لا يغير أي ستايل آخر === */
+.ag-navbar{position:sticky;top:0;z-index:1000;background:rgba(15,18,20,.85);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.08)}
+.ag-container{max-width:1200px;margin:auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ag-brand{display:inline-flex;align-items:center;gap:8px;color:#e6f2ea;text-decoration:none;font-size:16px}
+.ag-logo{width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,#2e7d32,#6dd37b);display:inline-block}
+.ag-nav{display:flex;flex-wrap:wrap;gap:8px}
+.ag-link{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:#0e1316;color:#dff3e7;text-decoration:none;font-size:13px}
+.ag-link:hover{background:#121a15}
+@media (max-width:900px){
+  .ag-nav{gap:6px}
+  .ag-link{font-size:12px;padding:7px 10px}
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="nav">
+    <div class="brand">🌱 المزارع</div>
+    <a href="home.html">الرئيسية</a>
+    <a href="assess.html">تشخيص</a>
+    <a href="weather.html">طقس</a>
+    <a href="yield.html">إنتاجية</a>
+    <a class="current" href="assistant.html">مساعد</a>
+    <a href="about.html">تعريف</a>
+    <span class="spacer"></span>
+    <a href="profile.html">الملف الشخصي</a>
+    <span class="sep">|</span>
+    <a href="login.html">تسجيل الدخول</a>
+    <span class="sep">|</span>
+    <a href="register.html">تسجيل حساب</a>
+
+    <span class="sep">|</span>
+    <a href="/logout">تسجيل خروج</a>
+  </nav>
+</header>
+
+<main>
+  <div class="shell" dir="rtl">
+    <!-- الشريط الجانبي: مقترحات فقط -->
+    <aside class="side card">
+      <div class="h">مقترحات سريعة</div>
+      <button class="preset">كيف أتعامل مع إصفرار أوراق الذرة؟</button>
+      <button class="preset">خطة ري أسبوعية للطماطم في الجزيرة</button>
+      <button class="preset">أفضل توقيت لزراعة البطيخ في الصيف</button>
+      <button class="preset">برنامج تسميد للقمح (10 هكتارات)</button>
+      <button class="preset">نسبة البذور وكثافة الزراعة للفول السوداني</button>
+    </aside>
+
+    <!-- المحادثة -->
+    <section class="card">
+      <div class="chat" id="chat" aria-live="polite"></div>
+
+      <div id="typing" class="typing" style="margin-top:8px">
+        <div class="bubble-typing">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+        <span class="muted" style="font-size:.85rem">المساعد يكتب…</span>
+      </div>
+
+      <div class="composer">
+        <textarea id="msg" placeholder="اكتب سؤالك الزراعي…"></textarea>
+        <button id="send" class="btn">إرسال</button>
+        <button id="retry" class="btn secondary" title="إعادة توليد آخر رد">↻</button>
+        <button id="clear" class="btn secondary" title="مسح الكل">مسح</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>khabab and ahmd @2025</footer>
+
+<script>
+/* ===== helpers ===== */
+const $  = (s, r=document)=>r.querySelector(s);
+const $$ = (s, r=document)=>[...r.querySelectorAll(s)];
+const chatEl = $('#chat');
+const typing = $('#typing');
+const msgEl  = $('#msg');
+const sendBt = $('#send');
+const retryBt= $('#retry');
+const clrBt  = $('#clear');
+
+const CHAT_KEY = 'assistant.history.v2';
+let history = [];
+let lastUser = null;
+
+function now(){ return new Date().toLocaleString('ar'); }
+function save(){ localStorage.setItem(CHAT_KEY, JSON.stringify(history)); }
+function load(){
+  try{
+    const h = JSON.parse(localStorage.getItem(CHAT_KEY)||'[]');
+    if(Array.isArray(h)){ history=h; h.forEach(m=>addBubble(m.role,m.text,m.ts));}
+  }catch(_){}
+}
+
+function addBubble(role, text, ts=now()){
+  const row = document.createElement('div');
+  row.className = `row ${role==='user'?'you':'bot'}`;
+
+  const av = document.createElement('div');
+  av.className='avatar';
+  av.textContent = role==='user' ? '🧑' : '🌱';
+
+  const col = document.createElement('div');
+  const bub = document.createElement('div');
+  bub.className='bubble';
+  bub.textContent = text;
+
+  const meta = document.createElement('div');
+  meta.className='meta';
+  meta.textContent = ts;
+
+  const tools = document.createElement('div');
+  tools.className='tools';
+  const copyBtn = document.createElement('button');
+  copyBtn.className='tool'; copyBtn.textContent='نسخ';
+  copyBtn.onclick = ()=> navigator.clipboard.writeText(text);
+  tools.appendChild(copyBtn);
+
+  col.appendChild(bub); col.appendChild(tools); col.appendChild(meta);
+
+  if(role==='user'){ row.appendChild(col); row.appendChild(av); }
+  else{ row.appendChild(av); row.appendChild(col); }
+
+  chatEl.appendChild(row);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function setBusy(b){
+  typing.style.display = b? 'flex':'none';
+  sendBt.disabled = b; msgEl.disabled = b;
+}
+
+/* ===== presets ===== */
+$$('.preset').forEach(btn=>{
+  btn.addEventListener('click', ()=>{ msgEl.value = btn.textContent.trim(); msgEl.focus(); });
+});
+
+/* ===== send ===== */
+async function sendMessage(text){
+  if(!text) return;
+  lastUser = text;
+
+  history.push({role:'user', text, ts:now()}); save();
+  addBubble('user', text);
+
+  setBusy(true);
+  try{
+    const res = await fetch('/api/chat', {
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ text })
+    });
+    const j = await res.json().catch(()=>({reply:'تعذر قراءة الرد.'}));
+    const reply = (j && j.reply) ? String(j.reply) : 'لم أفهم، أعد الصياغة.';
+
+    history.push({role:'assistant', text:reply, ts:now()}); save();
+    addBubble('assistant', reply);
+  }catch(e){
+    const err = 'حصل خطأ أثناء الاتصال بالخادم.';
+    history.push({role:'assistant', text:err, ts:now()}); save();
+    addBubble('assistant', err);
+  }finally{
+    setBusy(false);
+    msgEl.focus();
+  }
+}
+
+sendBt.addEventListener('click', ()=>{ const t=msgEl.value.trim(); msgEl.value=''; sendMessage(t); });
+msgEl.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); const t=msgEl.value.trim(); msgEl.value=''; sendMessage(t); }
+});
+
+/* ===== retry / clear ===== */
+retryBt.addEventListener('click', ()=>{
+  if(!lastUser) return;
+  sendMessage(lastUser + '\n(لو سمحت، جِب ردًا بصياغة مختلفة ومركّزة).');
+});
+clrBt.addEventListener('click', ()=>{
+  history=[]; save(); chatEl.innerHTML=''; msgEl.focus();
+});
+
+/* init */
+load();
+msgEl.focus();
+</script>
+
+<div class="auth-overlay" id="auth-overlay"></div>
+<div class="auth-wrap" id="auth-wrap" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+  <div class="auth-card">
+    <button class="auth-close" id="auth-close" aria-label="إغلاق">✕</button>
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login">تسجيل الدخول</button>
+      <button class="auth-tab" data-tab="register">تسجيل حساب</button>
+    </div>
+    <div class="auth-body" style="padding:18px;background:linear-gradient(180deg, rgba(26,34,26,.92), rgba(26,34,26,.82)); border:1px solid rgba(255,255,255,.18);">
+      <form id="auth-login" class="auth-panel">
+        <div class="grid grid-2">
+          <div class="field">
+            <label class="label">اسم المستخدم / البريد</label>
+            <input class="input" type="text" placeholder="example@farm.test">
+          </div>
+          <div class="field">
+            <label class="label">كلمة المرور</label>
+            <input class="input" type="password" placeholder="••••••••">
+          </div>
+        </div>
+        <div class="row" style="justify-content:flex-start">
+          <button class="btn" type="button" id="login-submit">دخول</button>
+          <a class="btn" style="background:#0f1612" href="#" data-switch="register">إنشاء حساب</a>
+        </div>
+      </form>
+
+      <form id="auth-register" class="auth-panel hidden">
+        <div class="grid grid-2">
+          <div class="field"><label class="label">الاسم</label><input class="input" type="text" placeholder="قصي — المزارع"></div>
+          <div class="field"><label class="label">اسم المستخدم</label><input class="input" type="text" placeholder="farmer_qusay"></div>
+          <div class="field"><label class="label">البريد الإلكتروني</label><input class="input" type="email" placeholder="demo@farm.test"></div>
+          <div class="field"><label class="label">الموقع</label><input class="input" type="text" placeholder="وادي الدواسر"></div>
+          <div class="field"><label class="label">وسيلة الاتصال</label><input class="input" type="text" placeholder="0500000000"></div>
+          <div class="field"><label class="label">تاريخ الميلاد</label><input class="input" type="date" value="2000-06-26"></div>
+          <div class="field"><label class="label">كلمة المرور</label><input class="input" type="password" placeholder="••••••••"></div>
+          <div class="field"><label class="label">تأكيد كلمة المرور</label><input class="input" type="password" placeholder="••••••••"></div>
+        </div>
+        <div class="row" style="justify-content:flex-start">
+          <button class="btn" type="button" id="register-submit">تسجيل</button>
+          <a class="btn" style="background:#0f1612" href="#" data-switch="login">عندي حساب؟ دخول</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+  const qs=(s,c=document)=>c.querySelector(s), qsa=(s,c=document)=>Array.from(c.querySelectorAll(s));
+  const wrap=qs('#auth-wrap'), overlay=qs('#auth-overlay'), closeBtn=qs('#auth-close');
+  const tabs=qsa('.auth-tab');
+  const panels={ login:qs('#auth-login'), register:qs('#auth-register') };
+
+  function setMode(mode){
+    tabs.forEach(t=>t.classList.toggle('active', t.dataset.tab===mode));
+    Object.keys(panels).forEach(k=>panels[k].classList.toggle('hidden', k!==mode));
+  }
+  function openAuth(mode='login'){
+    setMode(mode);
+    overlay.style.display='block'; wrap.style.display='flex';
+    document.documentElement.style.overflow='hidden';
+  }
+  function closeAuth(){
+    overlay.style.display='none'; wrap.style.display='none';
+    document.documentElement.style.overflow='';
+  }
+
+  tabs.forEach(b=>b.addEventListener('click', ()=>setMode(b.dataset.tab)));
+  qsa('[data-switch="login"]').forEach(b=>b.addEventListener('click', (e)=>{e.preventDefault(); setMode('login');}));
+  qsa('[data-switch="register"]').forEach(b=>b.addEventListener('click', (e)=>{e.preventDefault(); setMode('register');}));
+  closeBtn?.addEventListener('click', closeAuth);
+  overlay?.addEventListener('click', closeAuth);
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeAuth(); });
+
+  // Intercept LOWER-MENU links pointing to login/register
+  document.addEventListener('click', (e)=>{
+    const a=e.target.closest('a'); if(!a) return;
+    const href=(a.getAttribute('href')||'').toLowerCase();
+    if(href.endsWith('login.html')||href==='/login'){ e.preventDefault(); openAuth('login'); }
+    if(href.endsWith('register.html')||href==='/register'){ e.preventDefault(); openAuth('register'); }
+  });
+
+  // Demo submit
+  const ok=(msg)=>{ alert(msg); closeAuth(); };
+  qs('#login-submit')?.addEventListener('click', ()=>ok('تم الدخول (استعراضي)'));
+  qs('#register-submit')?.addEventListener('click', ()=>ok('تم التسجيل (استعراضي)'));
+  // Expose for manual triggers if needed
+  window.openAuth=openAuth;
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>المزارع — التقويم الزراعي (السودان/الجزيرة) + طقس اليوم</title>
+  <style>
+    :root{
+      --bg:url("https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?q=80&w=1920&auto=format&fit=crop");
+      --green:#2e7d32; --green-dark:#1b5e20; --leaf:#66bb6a;
+      --text:#eef6ee; --muted:#cfe3cf; --line:#4f6e50;
+      --panel:#182118; --panel2:#223022; --panel3:#1b241b;
+      --warn:#b84848; --accent:#9b8b2e; --info:#3b5b82;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:"Segoe UI",Tahoma,Arial,sans-serif; color:var(--text);
+      background:
+        radial-gradient(1100px 600px at 80% 20%, rgba(46,125,50,.18), transparent 60%),
+        radial-gradient(900px 500px at 15% 85%, rgba(141,110,99,.10), transparent 60%),
+        var(--bg) center/cover fixed no-repeat;
+      min-height:100dvh; display:flex; flex-direction:column;
+    }
+    header{position:sticky; top:0; z-index:50; background:rgba(15,20,15,.92); border-bottom:1px solid rgba(255,255,255,.12); backdrop-filter: blur(6px)}
+    .nav{max-width:1200px; margin:auto; padding:10px 16px; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+    .brand{font-weight:800}
+    .nav a{color:#e9f7e9; text-decoration:none; padding:8px 10px; border-radius:10px; opacity:.9}
+    .nav a:hover{background:rgba(255,255,255,.06); opacity:1}
+    .spacer{flex:1}
+    .current{background:rgba(46,125,50,.25); border:1px solid rgba(46,125,50,.5)}
+    main{flex:1; padding:20px}
+    .grid{max-width:1200px; margin:auto; display:grid; gap:18px; grid-template-columns:1fr}
+    @media(min-width:1024px){ .grid{grid-template-columns:320px 1fr 360px} }
+
+    .card{
+      background:linear-gradient(180deg, rgba(27,36,27,.92), rgba(27,36,27,.82)), var(--panel3);
+      border:1px solid rgba(255,255,255,.14); border-radius:18px; padding:16px;
+      box-shadow:0 20px 40px rgba(0,0,0,.45)
+    }
+    h1{margin:6px 0 10px; font-size:26px}
+    h2{margin:10px 0 12px; font-size:18px; color:var(--muted)}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    select,input[type="text"]{background:var(--panel2); color:var(--text); border:1px solid rgba(255,255,255,.18); border-radius:12px; padding:10px 12px; outline:none}
+    select:focus,input:focus{border-color:rgba(46,125,50,.75); box-shadow:0 0 0 4px rgba(46,125,50,.22)}
+    .btn{padding:10px 14px; border:0; border-radius:12px; color:#fff; font-weight:800; cursor:pointer; background:linear-gradient(180deg,var(--green),var(--green-dark)); box-shadow:0 10px 20px rgba(46,125,50,.35)}
+    .btn.secondary{background:#2a372a}
+    .pill{padding:8px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.18); background:var(--panel2); cursor:pointer}
+    .pill.active{outline:3px solid rgba(46,125,50,.28)}
+    .list{display:grid; gap:10px}
+    .li{background:var(--panel2); border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:10px 12px; display:flex; justify-content:space-between; gap:8px}
+    .empty{opacity:.7; color:var(--muted); font-size:13px}
+    .rec{background:var(--panel2); border:1px solid rgba(255,255,255,.14); border-radius:14px; padding:12px; display:flex; justify-content:space-between; gap:8px}
+    .badge{font-size:12px; background:#305130; border:1px solid #4b7d4b; padding:3px 8px; border-radius:999px}
+    .hint{color:var(--muted); font-size:12px}
+    .divider{height:1px; background:rgba(255,255,255,.12); margin:8px 0}
+    footer{padding:14px 0 20px; text-align:center; font-size:12px; color:#e6efe6}
+  </style>
+<style>
+
+/* ===== Auth Modal Shell (scoped .auth-*) ===== */
+.auth-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);display:none;z-index:9998}
+.auth-wrap{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:9999;direction:rtl}
+.auth-card{width:min(980px,96vw);border-radius:22px;overflow:hidden}
+.auth-tabs{display:flex;gap:8px;padding:10px 16px;border-bottom:1px dashed rgba(255,255,255,.12);flex-wrap:wrap;background:rgba(16,22,16,.8)}
+.auth-tab{cursor:pointer;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:#0f1612;color:#e6f2ea}
+.auth-tab.active{background:linear-gradient(135deg,#132016,#0c1510)}
+.auth-close{position:absolute;top:10px;left:10px;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:#0f1612;color:#e6f2ea;cursor:pointer}
+.auth-panel.hidden{display:none}
+@media (max-width:900px){.auth-card{width:94vw}}
+
+
+  :root{
+    --bg: url("https://images.pexels.com/photos/51947/tuscany-grape-field-nature-51947.jpeg"); /* حقول */
+    --green:#2e7d32; --green-dark:#1b5e20; --text:#f1f7f1; --muted:#d7e6d7;
+    --card:#1a221a; /* خلفية البطاقة */
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family:"Segoe UI",Tahoma,Arial,sans-serif; color:var(--text);
+    background:
+      radial-gradient(1100px 600px at 80% 20%, rgba(46,125,50,.18), transparent 60%),
+      radial-gradient(900px 500px at 15% 85%, rgba(141,110,99,.10), transparent 60%),
+      var(--bg) center/cover fixed no-repeat;
+    display:flex; flex-direction:column; min-height:100dvh; overflow-x:hidden;
+  }
+
+  /* شريط علوي واضح وثابت */
+  .topbar{
+    position:sticky; top:0; z-index:10;
+    background:rgba(15,20,15,.92); backdrop-filter:saturate(120%);
+    border-bottom:1px solid rgba(255,255,255,.12);
+  }
+  .nav{
+    max-width:1100px; margin:auto; padding:10px 16px;
+    display:flex; align-items:center; gap:16px;
+  }
+  .brand{font-weight:800; letter-spacing:.3px}
+  .nav a{color:#e9f7e9; text-decoration:none; padding:8px 10px; border-radius:10px; opacity:.9}
+  .nav a:hover{background:rgba(255,255,255,.06); opacity:1}
+  .nav .spacer{flex:1}
+  .nav .current{background:rgba(46,125,50,.25); border:1px solid rgba(46,125,50,.5)}
+
+  /* فلاش */
+  .alerts{max-width:min(92vw,560px); margin:14px auto 0}
+  .alert{padding:12px 14px; border-radius:12px; background:#f8d7da; color:#7b1f24; border:1px solid #f1aeb5}
+
+  /* الحاوية والبطاقة */
+  .wrap{flex:1; display:grid; place-items:center; perspective:1200px; padding:24px}
+  .auth-body .card{
+    width:min(92vw,560px); padding:32px; border-radius:22px;
+    background:linear-gradient(180deg, rgba(26,34,26,.92), rgba(26,34,26,.82)), var(--card);
+    border:1px solid rgba(255,255,255,.18);
+    box-shadow:0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
+    transform-style:preserve-3d; transition:transform .15s ease, box-shadow .2s ease
+  }
+  h1{margin:0 0 20px; font-size:32px; text-align:center}
+  .auth-body .field{margin:14px 0; text-align:right}
+  label{display:block; margin:0 0 6px; color:var(--muted); font-size:14px}
+  .auth-body .input{
+    width:100%; padding:16px; font-size:16px;
+    border-radius:14px; border:1px solid rgba(255,255,255,.22);
+    background:#243024; color:var(--text); outline:none; transition:.2s
+  }
+  .input::placeholder{color:#cfe3cf}
+  .input:focus{
+    border-color:rgba(46,125,50,.85);
+    box-shadow:0 0 0 4px rgba(46,125,50,.22);
+    background:#2a372a
+  }
+  .auth-body .row{display:flex; align-items:center; justify-content:space-between; gap:10px; color:var(--muted); font-size:14px}
+
+  .auth-body .btn{
+    width:100%; margin-top:16px; padding:16px; border:0; border-radius:16px; cursor:pointer;
+    font-weight:800; font-size:17px; color:#fff;
+    background:linear-gradient(180deg,var(--green),var(--green-dark));
+    box-shadow:0 12px 22px rgba(46,125,50,.35), inset 0 1px 0 rgba(255,255,255,.25);
+    transform:translateZ(30px); transition:transform .12s ease, filter .12s ease, box-shadow .12s ease
+  }
+  .btn:hover{filter:brightness(1.05)}
+  .btn:active{transform:translateZ(20px) scale(.99); box-shadow:0 8px 16px rgba(46,125,50,.4)}
+
+  .auth-body .switch{margin-top:12px; text-align:center; font-size:14px}
+  .auth-body .switch a{color:#e9f7e9; font-weight:700; text-decoration:none}
+  .auth-body .switch a:hover{text-decoration:underline}
+
+  footer{padding:12px 0 18px; text-align:center; font-size:12px; color:#e6efe6}
+
+
+/* === Scoped Navbar (.ag-*) — لا يغير أي ستايل آخر === */
+.ag-navbar{position:sticky;top:0;z-index:1000;background:rgba(15,18,20,.85);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.08)}
+.ag-container{max-width:1200px;margin:auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ag-brand{display:inline-flex;align-items:center;gap:8px;color:#e6f2ea;text-decoration:none;font-size:16px}
+.ag-logo{width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,#2e7d32,#6dd37b);display:inline-block}
+.ag-nav{display:flex;flex-wrap:wrap;gap:8px}
+.ag-link{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:#0e1316;color:#dff3e7;text-decoration:none;font-size:13px}
+.ag-link:hover{background:#121a15}
+@media (max-width:900px){
+  .ag-nav{gap:6px}
+  .ag-link{font-size:12px;padding:7px 10px}
+}
+
+
+  :root{
+    --bg: url("https://images.pexels.com/photos/51947/tuscany-grape-field-nature-51947.jpeg"); /* قمح */
+    --green:#2e7d32; --green-dark:#1b5e20; --text:#f1f7f1; --muted:#d7e6d7;
+    --card:#1a221a;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family:"Segoe UI",Tahoma,Arial,sans-serif; color:var(--text);
+    background:
+      radial-gradient(1100px 600px at 80% 20%, rgba(46,125,50,.18), transparent 60%),
+      radial-gradient(900px 500px at 15% 85%, rgba(141,110,99,.10), transparent 60%),
+      var(--bg) center/cover fixed no-repeat;
+    display:flex; flex-direction:column; min-height:100dvh; overflow-x:hidden;
+  }
+
+  .topbar{position:sticky; top:0; z-index:10; background:rgba(15,20,15,.92); border-bottom:1px solid rgba(255,255,255,.12)}
+  .nav{max-width:1100px; margin:auto; padding:10px 16px; display:flex; align-items:center; gap:16px}
+  .brand{font-weight:800}
+  .nav a{color:#e9f7e9; text-decoration:none; padding:8px 10px; border-radius:10px; opacity:.9}
+  .nav a:hover{background:rgba(255,255,255,.06); opacity:1}
+  .nav .spacer{flex:1}
+  .nav .current{background:rgba(46,125,50,.25); border:1px solid rgba(46,125,50,.5)}
+
+  .alerts{max-width:min(96vw,980px); margin:14px auto 0}
+  .alert{padding:12px 14px; border-radius:12px; background:#f8d7da; color:#7b1f24; border:1px solid #f1aeb5}
+
+  .wrap{flex:1; display:grid; place-items:center; perspective:1200px; padding:24px}
+  .auth-body .card{
+    width:min(96vw,980px); padding:32px; border-radius:22px;
+    background:linear-gradient(180deg, rgba(26,34,26,.92), rgba(26,34,26,.82)), var(--card);
+    border:1px solid rgba(255,255,255,.18);
+    box-shadow:0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
+    transform-style:preserve-3d; transition:transform .15s ease, box-shadow .2s ease
+  }
+  h1{margin:0 0 18px; font-size:30px; text-align:center}
+
+  .auth-body .grid{display:grid; grid-template-columns:1fr; gap:14px}
+  @media (min-width:720px){ .auth-body .grid{ grid-template-columns:1fr 1fr; } }
+
+  .auth-body .field{display:flex; flex-direction:column; gap:6px}
+  .auth-body .label{color:var(--muted); font-size:14px}
+  .auth-body .input{
+    width:100%; padding:16px; font-size:16px;
+    border-radius:14px; border:1px solid rgba(255,255,255,.22);
+    background:#243024; color:var(--text); outline:none; transition:.2s
+  }
+  .input::placeholder{color:#cfe3cf}
+  .input:focus{ border-color:rgba(46,125,50,.85); box-shadow:0 0 0 4px rgba(46,125,50,.22); background:#2a372a }
+  .error{color:#ffb3b3; font-size:12px}
+
+  .auth-body .row{display:flex; gap:12px; margin-top:10px}
+  .auth-body .row .auth-body .btn{flex:1}
+
+  .auth-body .btn{
+    padding:16px; border:0; border-radius:16px; cursor:pointer;
+    font-weight:800; font-size:17px; color:#fff;
+    background:linear-gradient(180deg,var(--green),var(--green-dark));
+    box-shadow:0 12px 22px rgba(46,125,50,.35), inset 0 1px 0 rgba(255,255,255,.25);
+    transform:translateZ(30px); transition:transform .12s ease, filter .12s ease, box-shadow .12s ease
+  }
+  .btn:hover{filter:brightness(1.05)}
+  .btn:active{transform:translateZ(20px) scale(.99); box-shadow:0 8px 16px rgba(46,125,50,.4)}
+
+  .muted-link{display:block; text-align:center; padding:16px; border-radius:16px;
+    background:#243024; border:1px solid rgba(255,255,255,.22); color:#e9f7e9; text-decoration:none}
+  .muted-link:hover{text-decoration:underline}
+
+  footer{padding:12px 0 18px; text-align:center; font-size:12px; color:#e6efe6}
+
+
+/* === Scoped Navbar (.ag-*) — لا يغير أي ستايل آخر === */
+.ag-navbar{position:sticky;top:0;z-index:1000;background:rgba(15,18,20,.85);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.08)}
+.ag-container{max-width:1200px;margin:auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ag-brand{display:inline-flex;align-items:center;gap:8px;color:#e6f2ea;text-decoration:none;font-size:16px}
+.ag-logo{width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,#2e7d32,#6dd37b);display:inline-block}
+.ag-nav{display:flex;flex-wrap:wrap;gap:8px}
+.ag-link{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:#0e1316;color:#dff3e7;text-decoration:none;font-size:13px}
+.ag-link:hover{background:#121a15}
+@media (max-width:900px){
+  .ag-nav{gap:6px}
+  .ag-link{font-size:12px;padding:7px 10px}
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="nav" aria-label="التنقل الرئيسي">
+    <div class="brand">🌱 المزارع</div>
+    <a href="home.html">الرئيسية</a>
+    <a class="current" href="#">التقويم الزراعي</a>
+    <a href="assess.html">تشخيص</a>
+    <a href="yield.html">إنتاجية</a>
+    <a href="assistant.html">مساعد</a>
+    <a href="about.html">تعريف</a>
+    <span class="spacer"></span>
+    <a href="profile.html">الملف الشخصي</a>
+    <span class="sep">|</span>
+    <a href="login.html">تسجيل الدخول</a>
+    <span class="sep">|</span>
+    <a href="register.html">تسجيل حساب</a>
+
+    <span class="sep">|</span>
+    <a href="{{ url_for('auth.logout') if false else '#' }}">تسجيل خروج</a>
+  </nav>
+</header>
+
+<main>
+  <div class="grid">
+    <!-- يسار: اختيار المنطقة + الفصول + طقس اليوم -->
+    <aside class="card" role="complementary" aria-label="فلترة وطقس">
+      <h1>التقويم الزراعي</h1>
+      <div class="row">
+        <label style="display:grid;gap:6px;flex:1">
+          <span>المنطقة</span>
+          <select id="region">
+            <option value="sudan">السودان (عام)</option>
+            <option value="aljazeera" selected>الجزيرة — ود مدني</option>
+          </select>
+        </label>
+      </div>
+
+      <h2>الفصول</h2>
+      <div class="row" id="tabs" role="tablist" aria-label="الفصول">
+        <button class="pill active" role="tab" data-season="winter">❄️ الشتاء</button>
+        <button class="pill" role="tab" data-season="spring">🌼 الربيع</button>
+        <button class="pill" role="tab" data-season="summer">☀️ الصيف</button>
+        <button class="pill" role="tab" data-season="autumn">🌧 الخريف</button>
+      </div>
+
+      <div class="divider"></div>
+      <h2>طقس اليوم — ود مدني</h2>
+      <div id="wx-today" class="list"><div class="empty">جاري الجلب…</div></div>
+      <div class="hint" style="margin-top:8px">المصدر: Open-Meteo — Africa/Khartoum.</div>
+    </aside>
+
+    <!-- وسط: قائمة المحاصيل -->
+    <section class="card" role="region" aria-label="قائمة المحاصيل">
+      <div class="row" style="justify-content:space-between; align-items:center">
+        <h2 id="title">محاصيل الشتاء — الجزيرة</h2>
+        <div class="row">
+          <input id="search" type="text" placeholder="ابحث عن محصول/توصية ( / )" style="min-width:220px">
+          <button class="btn secondary" id="btn-copy">نسخ</button>
+          <button class="btn secondary" id="btn-export">تصدير JSON</button>
+        </div>
+      </div>
+      <div id="results" class="list" style="margin-top:10px"></div>
+    </section>
+
+    <!-- يمين: تفاصيل -->
+    <aside class="card" role="complementary" aria-label="تفاصيل">
+      <h2>تفاصيل</h2>
+      <div id="details" class="list"><div class="empty">اختر محصولًا لعرض تفاصيله (توقيت، مسافات، تسميد، ري، حماية، حصاد/مراجع).</div></div>
+
+      <h2 style="margin-top:12px">مصادر</h2>
+      <div class="list" id="refs">
+        <div class="li"><div>Open-Meteo Weather API (ود مدني 14.4012, 33.5199)</div><div><a href="https://open-meteo.com/en/docs" target="_blank" rel="noopener">رابط</a></div></div>
+        <div class="li"><div>FAO GIEWS — موجز محاصيل السودان</div><div><a href="https://www.fao.org/giews/countrybrief/country.jsp?code=SDN" target="_blank" rel="noopener">رابط</a></div></div>
+        <div class="li"><div>FAO DiE — Calendars Sudan</div><div><a href="https://data-in-emergencies.fao.org/documents/512a6e7675674e67902f49a4cc4a951f" target="_blank" rel="noopener">رابط</a></div></div>
+        <div class="li"><div>Medani Watermelon spacing (جزيرة)</div><div><a href="https://medcraveonline.com/HIJ/HIJ-02-00045.pdf" target="_blank" rel="noopener">PDF</a></div></div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<footer>khabab and ahmd @2025</footer>
+
+<script>
+/* ===================== طقس اليوم (Open-Meteo) ===================== */
+const METEO = {
+  lat: 14.4012, lon: 33.5199,
+  url() {
+    const tz = encodeURIComponent('Africa/Khartoum');
+    return `https://api.open-meteo.com/v1/forecast?latitude=${this.lat}&longitude=${this.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=${tz}`;
+  }
+};
+const WX = {codes:{
+  0:"سماء صافية",1:"غالبًا صافية",2:"غائمة جزئيًا",3:"غائم",
+  45:"ضباب",48:"ضباب متجمد",51:"رذاذ خفيف",53:"رذاذ",55:"رذاذ كثيف",
+  61:"مطر خفيف",63:"مطر",65:"مطر غزير",71:"ثلج خفيف",73:"ثلج",75:"ثلج غزير",
+  80:"زخات خفيفة",81:"زخات",82:"زخات قوية",95:"عواصف رعدية",96:"عواصف مع برد",99:"عواصف مع برد قوي"
+}};
+async function loadWeatherToday(){
+  const box = document.getElementById('wx-today');
+  box.innerHTML = `<div class="empty">جاري الجلب…</div>`;
+  try{
+    const res = await fetch(METEO.url());
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const j = await res.json();
+    const c = j.current || {};
+    const d = (j.daily?.time?.length ? 0 : null);
+    const tmax = d!==null ? j.daily.temperature_2m_max[d] : '—';
+    const tmin = d!==null ? j.daily.temperature_2m_min[d] : '—';
+    const prec = d!==null ? j.daily.precipitation_sum[d] : '—';
+    const code = WX.codes[c.weather_code] ?? '—';
+    box.innerHTML = `
+      <div class="li"><div>الحرارة الآن</div><div>${c.temperature_2m ?? '—'}°C</div></div>
+      <div class="li"><div>رطوبة</div><div>${c.relative_humidity_2m ?? '—'}%</div></div>
+      <div class="li"><div>رياح</div><div>${c.wind_speed_10m ?? '—'} كم/س</div></div>
+      <div class="li"><div>حالة السماء</div><div>${code}</div></div>
+      <div class="li"><div>العظمى / الصغرى</div><div>${tmax}° / ${tmin}°</div></div>
+      <div class="li"><div>مطر اليوم</div><div>${prec} مم</div></div>
+    `;
+  }catch(e){
+    box.innerHTML = `<div class="empty">تعذّر جلب الطقس حاليًا.</div>`;
+    console.error(e);
+  }
+}
+
+/* ===================== بيانات المواسم ===================== */
+/* زوّدنا الأصناف وعدّلنا لكل فصل قائمة أطول، مع تفاصيل كاملة في detailsMap */
+const DATA = {
+  sudan: {
+    winter: [
+      {crop:"قمح", tag:"حبوب", note:"منتصف نوفمبر–منتصف ديسمبر (مروي)."},
+      {crop:"شعير", tag:"حبوب/علف", note:"تحمل للبرد؛ كثافة أعلى للرعي."},
+      {crop:"بصل", tag:"خضر", note:"شتلات 6–8 أسابيع؛ مكافحة ذبابة البصل."},
+      {crop:"ثوم", tag:"خضر", note:"فصوص كبيرة؛ صرف ممتاز."},
+      {crop:"حمص", tag:"بقوليات", note:"ري محدود؛ راقب البياض الدقيقي."},
+      {crop:"فول مصري", tag:"بقوليات", note:"تلقيح رايزوبيوم؛ ري قليل."},
+      {crop:"برسيم حجازي", tag:"علف", note:"حش كل 30–35 يوم."},
+      {crop:"بطاطس", tag:"خضر", note:"بوتاسي مرتفع؛ لفحة متأخرة."},
+      {crop:"جزر", tag:"خضر", note:"تربة مفككة؛ ترقيق بعد الإنبات."},
+      {crop:"بازلاء خضراء", tag:"بقوليات", note:"دعامات خفيفة؛ قطف منتظم."},
+      {crop:"ملفوف", tag:"خضر", note:"تسميد متوازن؛ ديدان الأوراق."},
+      {crop:"قرنبيط", tag:"خضر", note:"كالسيوم/بورون للرأس."},
+      {crop:"فراولة محمية", tag:"فاكهة", note:"ملش أسود؛ عناكب/حلم."},
+      {crop:"خيار محمي", tag:"خضر", note:"تعريش؛ بياض دقيقي."},
+      {crop:"كوسة محمية", tag:"خضر", note:"مصائد صفراء؛ لفحات."}
+    ],
+    spring: [
+      {crop:"ذرة شامية", tag:"حبوب", note:"فبراير–مارس؛ آزوت مقسّم."},
+      {crop:"سمسم مبكر", tag:"زيتي", note:"صرف ممتاز؛ تبقعات."},
+      {crop:"فول سوداني", tag:"زيتي/بقول", note:"كالسيوم وقت التزهير."},
+      {crop:"دوار الشمس", tag:"زيتي", note:"مسافات 70×30 سم؛ طيور."},
+      {crop:"طماطم مبكرة", tag:"خضر", note:"تعريش؛ ذبابة بيضاء."},
+      {crop:"فلفل", tag:"خضر", note:"حسّاس للبرد؛ عناكب."},
+      {crop:"باذنجان", tag:"خضر", note:"تحمل نسبيًا؛ نطاطات."},
+      {crop:"بطيخ", tag:"فاكهة", note:"مروي مبكر؛ بوتاسي."},
+      {crop:"شمام", tag:"فاكهة", note:"ملش؛ انتظام ري."},
+      {crop:"لوبيا", tag:"بقوليات", note:"تلقيح؛ ري متوازن."},
+      {crop:"قصب سكر (غرس ربيعي)", tag:"صناعي", note:"عقل سليمة؛ حفار."}
+    ],
+    summer: [
+      {crop:"ذرة رفيعة", tag:"حبوب", note:"مع أول الأمطار؛ أعشاب مبكرًا."},
+      {crop:"سمسم", tag:"زيتي", note:"تحمل حر؛ حصاد عند 70% قرون صفراء."},
+      {crop:"فول سوداني", tag:"زيتي/بقول", note:"إدارة رطوبة؛ أعفان قرون."},
+      {crop:"دخن", tag:"حبوب", note:"ملائم للمطرية؛ مقاوم للجفاف."},
+      {crop:"بامية", tag:"خضر", note:"قطف متواصل؛ بياض دقيقي."},
+      {crop:"لوبيا", tag:"بقوليات", note:"منّ/عناكب؛ ري متزن."},
+      {crop:"بطيخ صيفي", tag:"فاكهة", note:"ظل خفيف بموجات الحر."},
+      {crop:"شمام صيفي", tag:"فاكهة", note:"ذبابة فاكهة؛ انتظام ري."},
+      {crop:"قرع/يقطين", tag:"خضر", note:"تأبير؛ بوتاسي مرتفع."},
+      {crop:"قطن (مناطق محددة)", tag:"ألياف", note:"دودة اللوز؛ رصد ندى."}
+    ],
+    autumn: [
+      {crop:"ذرة شامية مطرية", tag:"حبوب", note:"بداية الخريف؛ آزوت مقسّم."},
+      {crop:"فول سوداني متأخر", tag:"زيتي/بقول", note:"خطر أمطار الحصاد."},
+      {crop:"بطاطس خريفية", tag:"خضر", note:"درنات معتمدة؛ لفحة متأخرة."},
+      {crop:"طماطم خريفية", tag:"خضر", note:"برنامج لفحات؛ دعامات."},
+      {crop:"كركدي", tag:"صناعي", note:"تجفيف جيد؛ حشرات ماصة."},
+      {crop:"قرع", tag:"خضر", note:"تأبير؛ تنظيم الري."},
+      {crop:"برسيم خريفي", tag:"علف", note:"تحضير جيد؛ صرف ممتاز."}
+    ]
+  },
+  aljazeera: {
+    winter: [
+      {crop:"قمح (الجزيرة)", tag:"حبوب", note:"منتصف نوفمبر–منتصف ديسمبر؛ نيتروجين 3 دفعات؛ حصاد مارس."},
+      {crop:"شعير", tag:"حبوب/علف", note:"كثافة للرعي؛ تقليل الري عند الامتلاء."},
+      {crop:"بصل", tag:"خضر", note:"شتلات 7 أسابيع؛ ذبابة البصل؛ cure بعد القلع."},
+      {crop:"ثوم", tag:"خضر", note:"فصوص كبيرة؛ بوتاسيوم؛ أعفان جذور."},
+      {crop:"حمص", tag:"بقوليات", note:"ري محدود؛ بياض دقيقي."},
+      {crop:"فول مصري", tag:"بقوليات", note:"تلقيح؛ ري قليل."},
+      {crop:"بطاطس شتوية", tag:"خضر", note:"بوتاسي مرتفع؛ لفحة."},
+      {crop:"جزر", tag:"خضر", note:"ترقيق؛ ري خفيف متقارب."},
+      {crop:"بازلاء", tag:"بقوليات", note:"دعامات؛ قطف منتظم."},
+      {crop:"ملفوف/قرنبيط", tag:"خضر", note:"كالسيوم/بورون؛ ديدان."},
+      {crop:"فراولة محمية", tag:"فاكهة", note:"ملش أسود؛ مكافحة عناكب."}
+    ],
+    spring: [
+      {crop:"ذرة شامية ربيعية", tag:"حبوب", note:"بذر مبكر؛ حفار؛ ري وقت التزهير."},
+      {crop:"سمسم مبكر", tag:"زيتي", note:"صرف ممتاز؛ تبقعات."},
+      {crop:"فول سوداني", tag:"زيتي/بقول", note:"كالسيوم؛ أعفان قرون."},
+      {crop:"دوار الشمس", tag:"زيتي", note:"مسافات 70×30؛ طيور."},
+      {crop:"طماطم مبكرة", tag:"خضر", note:"تعريش؛ ذبابة بيضاء."},
+      {crop:"بطيخ", tag:"فاكهة", note:"مروي مبكر؛ بوتاسي."},
+      {crop:"شمام", tag:"فاكهة", note:"ملش؛ انتظام ري."},
+      {crop:"فلفل/باذنجان", tag:"خضر", note:"عناكب؛ نطاطات."},
+      {crop:"لوبيا", tag:"بقوليات", note:"تلقيح؛ ري متوازن."}
+    ],
+    summer: [
+      {crop:"ذرة رفيعة", tag:"حبوب", note:"مع أول الأمطار؛ أعشاب مبكرًا."},
+      {crop:"سمسم", tag:"زيتي", note:"تباعد 60–70 سم؛ صرف ممتاز."},
+      {crop:"فول سوداني", tag:"زيتي/بقول", note:"إدارة رطوبة؛ توقيت حصاد."},
+      {crop:"بطيخ صيفي", tag:"فاكهة", note:"ظل خفيف؛ ذبابة فاكهة."},
+      {crop:"شمام صيفي", tag:"فاكهة", note:"ري متزن؛ تشقق عند الإفراط."},
+      {crop:"قرع/يقطين", tag:"خضر", note:"تأبير؛ بوتاسي مرتفع."},
+      {crop:"بامية صيفية", tag:"خضر", note:"قطف متتابع؛ بياض دقيقي."}
+    ],
+    autumn: [
+      {crop:"ذرة شامية مطرية", tag:"حبوب", note:"بداية الخريف؛ أعشاب مبكرة."},
+      {crop:"بطاطس خريفية", tag:"خضر", note:"لفحة متأخرة؛ بوتاسي."},
+      {crop:"طماطم خريفية", tag:"خضر", note:"برنامج لفحات؛ دعامات."},
+      {crop:"فول سوداني متأخر", tag:"زيتي/بقول", note:"خطر أمطار الحصاد."},
+      {crop:"كركدي", tag:"صناعي", note:"تجفيف؛ حشرات ماصة."}
+    ]
+  }
+};
+
+/* تفاصيل كاملة لكل محصول (تستخدم في لوحة “تفاصيل”) */
+const detailsMap = {
+  "قمح": {when:"منتصف نوفمبر–منتصف ديسمبر (مروي). حصاد: مارس.",
+    spacing:"خطوط 20–25 سم؛ 120–150 كجم بذرة/هكتار.",
+    fert:"N: 3 دفعات (تفريع/استطالة/طرد) + P أساسًا؛ Zn عند النقص.",
+    water:"كل 12–15 يوم (تربة طينية) — حسب الطقس.",
+    protect:"صدأ الأوراق/الساق، التفحم، حشائش — دورة محصولية ورش وقائي.",
+    harvest:"عند 12–14% رطوبة حبوب؛ تجفيف جيد."},
+  "قمح (الجزيرة)": {when:"15 نوفمبر–15 ديسمبر؛ حصاد مارس.",
+    spacing:"20–25 سم؛ 120–140 كجم/هكتار.",
+    fert:"N على ثلاث دفعات؛ P قبل الزراعة؛ K عند الحاجة.",
+    water:"ري كل 12–15 يوم؛ تقليل قبل الحصاد.",
+    protect:"صدأ، أعشاب، حشرات منّ — متابعة أسبوعية.",
+    harvest:"حصد على درجة رطوبة آمنة ومباشرة للدرس."},
+  "شعير": {when:"شتوي بارد؛ يصلح علف/حبوب.",
+    spacing:"سطرية متقاربة لرفع الكثافة.",
+    fert:"N معتدل؛ P أساسًا.",
+    water:"تقليل الري عند امتلاء الحبوب.",
+    protect:"تفحمات/تبقعات؛ بذور معالجة؛ أعشاب."},
+  "بصل": {when:"شتلات 6–8 أسابيع؛ شتوي.",
+    spacing:"صفوف 30–40 سم؛ جورات 10–12 سم.",
+    fert:"N مقسّم؛ S/كِبريت ميكروني وقائي.",
+    water:"ري منتظم دون تغريق؛ تقليل قبل القلع.",
+    protect:"ذبابة البصل والتربس؛ تبقعات؛ أعفان عنق.",
+    harvest:"قلع ثم تجفيف (cure) 10–14 يوم."},
+  "ثوم": {when:"شتوي.",
+    spacing:"جور 10×25 سم؛ فصوص كبيرة سليمة.",
+    fert:"P أساسًا؛ K مرتفع؛ Ca عند الحاجة.",
+    water:"ري منتظم وصرف جيد.",
+    protect:"أعفان الجذور/النيماتودا؛ تعقيم تربة."},
+  "حمص": {when:"شتوي معتدل البرودة.",
+    spacing:"30–40 سم بين الصفوف؛ 15–20 سم بين الجور.",
+    fert:"تلقيح رايزوبيوم؛ N خفيف؛ P جيد.",
+    water:"ري محدود؛ حساس للتغريق.",
+    protect:"بياض دقيقي/ذبول؛ رش وقائي؛ دورة محصولية."},
+  "فول مصري": {when:"شتوي؛ تلقيح بكتيري.",
+    spacing:"45–60 سم بين الصفوف؛ 20–25 سم بين الجور.",
+    fert:"P أساسي؛ N قليل بعد العقد.",
+    water:"1–3 ريات فقط حسب المطر.",
+    protect:"صانعات أنفاق/منّ؛ مصائد ولصق."},
+  "برسيم حجازي": {when:"شتوي/مستديم.",
+    spacing:"بذر ناعم؛ تسوية جيدة.",
+    fert:"P قبل الزراعة؛ K بعد كل حشة.",
+    water:"أول حشة عند 25–30 سم؛ ري بعد كل حشة.",
+    protect:"دودة ورق القطن وحشرات ماصة."},
+  "بطاطس": {when:"شتوي وخريفي.",
+    spacing:"25–30 سم بين الجور؛ خطوط 70–80 سم.",
+    fert:"K مرتفع من العقد حتى الامتلاء؛ N معتدل.",
+    water:"انتظام ري؛ تقليل قبل الحصاد.",
+    protect:"لفحة متأخرة/منّ/ذبابة؛ تبادل مبيدات."},
+  "جزر": {when:"شتوي.",
+    spacing:"نثري ثم ترقيق لمسافة 5–8 سم.",
+    fert:"N خفيف؛ P/K متوازن.",
+    water:"ري خفيف متقارب؛ صرف جيد.",
+    protect:"ذبول/تبقعات؛ حشرات ماصة."},
+  "بازلاء خضراء": {when:"شتوي.",
+    spacing:"20–25 سم؛ دعامات خفيفة للأصناف المتسلقة.",
+    fert:"تلقيح بكتيري؛ N قليل.",
+    water:"ري منتظم دون تغريق.",
+    protect:"بياض دقيقي؛ منّ؛ حصاد متكرر."},
+  "ملفوف": {when:"شتوي.",
+    spacing:"50×50 سم تقريبًا.",
+    fert:"N متوازن؛ Ca/B لمنع عيوب الرأس.",
+    water:"انتظام؛ منع التشقق برفع انتظام الري.",
+    protect:"ديدان أوراق/منّ/ذبابة؛ برنامج وقائي."},
+  "قرنبيط": {when:"شتوي.",
+    spacing:"60×60 سم تقريبًا.",
+    fert:"كالسيوم وبورون؛ N متوازن.",
+    water:"ري منتظم؛ حسّاس للتذبذب.",
+    protect:"لفحات/عناكب؛ تظليل الرأس عند اللزوم."},
+  "فراولة محمية": {when:"شتوي محمي.",
+    spacing:"ملش أسود؛ مسافات 25–30 سم.",
+    fert:"K مرتفع؛ Ca/Mg عند الحاجة.",
+    water:"تنقيط منتظم.",
+    protect:"عناكب/حلم/بياض؛ إزالة الثمار المصابة."},
+  "خيار محمي": {when:"شتوي محمي.",
+    spacing:"تعريش؛ 40–50 سم بين الجور.",
+    fert:"N/K متوازن؛ Ca ورقي.",
+    water:"تنقيط منتظم.",
+    protect:"بياض دقيقي/منّ/ذبابة بيضاء."},
+  "كوسة محمية": {when:"شتوي محمي.",
+    spacing:"80–100 سم بين الصفوف؛ 50–60 سم بين الجور.",
+    fert:"K أعلى وقت الإثمار.",
+    water:"ري منتظم.",
+    protect:"لفحات/ذبابة بيضاء."},
+  "ذرة شامية": {when:"ربيعي/خريفي.",
+    spacing:"بين الصفوف 70–80 سم؛ بين الجور 20–25 سم.",
+    fert:"N ثلاث دفعات؛ P أساسًا.",
+    water:"انتظام وقت التزهير لمنع فقد الخبّاط.",
+    protect:"حفار الذرة/حشدية/أعشاب."},
+  "سمسم مبكر": {when:"ربيعي مبكر.",
+    spacing:"60–70 سم بين الصفوف؛ 20–30 سم بين الجور.",
+    fert:"P قبل الزراعة؛ K متوازن.",
+    water:"صرف ممتاز؛ حسّاس للتغريق.",
+    protect:"تبقعات/ذبول؛ حصاد عند اصفرار 70% من القرون."},
+  "فول سوداني": {when:"ربيعي/صيفي.",
+    spacing:"70–80 سم بين الصفوف؛ 10–15 سم بين الجور.",
+    fert:"كالسيوم وقت التزهير؛ بورون عند الحاجة.",
+    water:"رطوبة متوازنة؛ تجنّب الركود.",
+    protect:"أعفان القرون؛ نيماتودا؛ تطهير معدات."},
+  "دوار الشمس": {when:"ربيعي.",
+    spacing:"70×30 سم تقريبًا.",
+    fert:"N/P متوازن؛ K للإزهار.",
+    water:"ري منتظم؛ حسّاس للعطش عند الإزهار.",
+    protect:"طيور/تبقعات أوراق."},
+  "طماطم مبكرة": {when:"ربيعي وخريفي.",
+    spacing:"100–120 سم بين الصفوف؛ 40–50 سم بين الجور.",
+    fert:"Ca ورقي لمنع عفن الطرف الزهري؛ K عالي بالإثمار.",
+    water:"انتظام؛ تجنّب البلل الليلي.",
+    protect:"لفحات/ذبابة بيضاء/تربس؛ تعريش."},
+  "فلفل": {when:"ربيعي.",
+    spacing:"80–100 سم × 40–50 سم.",
+    fert:"K/ Ca بالإثمار.",
+    water:"ري منتظم؛ حسّاس للعطش.",
+    protect:"عناكب/منّ/تربس."},
+  "باذنجان": {when:"ربيعي.",
+    spacing:"100×50 سم تقريبًا.",
+    fert:"N/K متوازن.",
+    water:"ري منتظم.",
+    protect:"نطاطات/منّ/عناكب."},
+  "بطيخ": {when:"ربيعي/صيفي.",
+    spacing:"بين الخطوط 2–3 م؛ بين الجور 0.7–1 م.",
+    fert:"K مرتفع من العقد حتى الامتلاء؛ N معتدل.",
+    water:"انتظام ري؛ تقليل قبل الجمع لمنع التشقق.",
+    protect:"ذبابة الفاكهة/بياض دقيقي/ذبول فطري.",
+    harvest:"70–90 يومًا حسب الصنف والعروة."},
+  "شمام": {when:"ربيعي/صيفي.",
+    spacing:"2–3 م × 0.7–1 م.",
+    fert:"K أعلى؛ Ca لمنع التشقق.",
+    water:"انتظام؛ حسّاس للإفراط.",
+    protect:"ذبابة فاكهة/بياض/لفحات."},
+  "لوبيا": {when:"ربيعي وصيفي.",
+    spacing:"50–60 سم × 20–25 سم.",
+    fert:"تلقيح؛ N خفيف.",
+    water:"ري متوازن.",
+    protect:"منّ/ذبابة بيضاء."},
+  "قصب سكر (غرس ربيعي)": {when:"ربيع/صيف.",
+    spacing:"خطوط مزدوجة؛ عقل سليمة.",
+    fert:"N/P/K وفق التُربة.",
+    water:"وفير مع صرف جيد.",
+    protect:"حفار/أعشاب."},
+  "ذرة رفيعة": {when:"صيف ممطر.",
+    spacing:"70–80 سم × 20–25 سم.",
+    fert:"N ثلاث دفعات.",
+    water:"حسّاسة للتغريق؛ أمطار كافية.",
+    protect:"طائر القيت/أعشاب."},
+  "دخن": {when:"صيف ممطر.",
+    spacing:"60–70 سم × 15–20 سم.",
+    fert:"N/P متوازن.",
+    water:"مطرية؛ تحمّل جفاف.",
+    protect:"أعشاب/طيور."},
+  "بامية": {when:"صيفي.",
+    spacing:"80–100 سم × 30–40 سم.",
+    fert:"N معتدل؛ K بالإثمار.",
+    water:"ري منتظم؛ قطف مستمر.",
+    protect:"بياض دقيقي/منّ."},
+  "قرع/يقطين": {when:"صيف/خريف.",
+    spacing:"2–3 م × 1 م.",
+    fert:"K مرتفع؛ Ca.",
+    water:"ري متزن.",
+    protect:"لفحات؛ تأبير يدوي عند الحاجة."},
+  "قطن (مناطق محددة)": {when:"صيفي.",
+    spacing:"90–100 سم × 30–40 سم.",
+    fert:"N/P حسب التُربة.",
+    water:"ري منتظم.",
+    protect:"دودة اللوز/حشرات ماصة."},
+  "ذرة شامية مطرية": {when:"خريفي.",
+    spacing:"70–80 سم × 20–25 سم.",
+    fert:"N مقسّم؛ P أساسًا.",
+    water:"يعتمد على المطر.",
+    protect:"أعشاب مبكرة/حفار."},
+  "بطاطس خريفية": {when:"خريفي.",
+    spacing:"25–30 سم؛ خطوط 70–80 سم.",
+    fert:"K مرتفع؛ Ca.",
+    water:"انتظام؛ تقليل قبل الحصاد.",
+    protect:"لفحة متأخرة."},
+  "طماطم خريفية": {when:"خريفي.",
+    spacing:"تعريش؛ 100–120 × 40–50 سم.",
+    fert:"K/ Ca.",
+    water:"انتظام.",
+    protect:"لفحات/ذبابة بيضاء."},
+  "كركدي": {when:"خريفي.",
+    spacing:"70–80 سم × 30–40 سم.",
+    fert:"N/P معتدل.",
+    water:"مطرية؛ تجفيف جيد للسبلات.",
+    protect:"حشرات ماصة."},
+  "قرع": {when:"خريفي.",
+    spacing:"2–3 م × 1 م.",
+    fert:"K/Ca.",
+    water:"منتظم.",
+    protect:"لفحات."},
+  "برسيم خريفي": {when:"خريفي.",
+    spacing:"بذر ناعم؛ صرف ممتاز.",
+    fert:"P أساسًا؛ K بعد الحش.",
+    water:"أول حشة بعد 35–40 يوم.",
+    protect:"أعشاب/حشرات علفية."}
+};
+
+/* ===================== واجهة: عرض القوائم/التفاصيل ===================== */
+const $  = (s,root=document)=>root.querySelector(s);
+const $$ = (s,root=document)=>[...root.querySelectorAll(s)];
+const results = $('#results');
+const details = $('#details');
+const titleEl = $('#title');
+
+function renderList(){
+  const region = $('#region').value;
+  const season = $$('#tabs .pill').find(x=>x.classList.contains('active'))?.dataset.season || 'winter';
+  titleEl.textContent = `محاصيل ${label(season)} — ${region==='aljazeera'?'الجزيرة':'السودان'}`;
+
+  const q = ($('#search').value||'').trim().toLowerCase();
+  let arr = (DATA[region] && DATA[region][season]) ? [...DATA[region][season]] : [];
+  if(q) arr = arr.filter(x => x.crop.toLowerCase().includes(q) || x.note.toLowerCase().includes(q));
+
+  if(!arr.length){ results.innerHTML = `<div class="empty">لا توجد توصيات لهذا الفصل/المنطقة.</div>`; return; }
+
+  results.innerHTML = arr.map(x => `
+    <div class="rec" data-crop="${escapeHtml(x.crop)}">
+      <div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <strong>${x.crop}</strong>
+          <span class="badge">${x.tag||'—'}</span>
+        </div>
+        <div class="hint" style="margin-top:6px">${x.note}</div>
+      </div>
+      <div class="row"><button class="btn secondary" data-more="${escapeHtml(x.crop)}">تفاصيل</button></div>
+    </div>
+  `).join('');
+
+  $$('#results [data-more]').forEach(b=>{
+    b.addEventListener('click', ()=> showDetails(b.getAttribute('data-more')));
+  });
+}
+
+function label(s){return s==='winter'?'الشتاء':s==='spring'?'الربيع':s==='summer'?'الصيف':'الخريف';}
+function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));}
+
+function showDetails(crop){
+  const d = detailsMap[crop];
+  if(!d){ details.innerHTML = `<div class="empty">لا تفاصيل.</div>`; return; }
+  details.innerHTML = `
+    <div class="li"><div>المحصول</div><div><strong>${crop}</strong></div></div>
+    <div class="li"><div>التوقيت</div><div>${d.when||'—'}</div></div>
+    <div class="li"><div>المسافات/الكثافة</div><div>${d.spacing||'—'}</div></div>
+    <div class="li"><div>التسميد</div><div>${d.fert||'—'}</div></div>
+    <div class="li"><div>الري</div><div>${d.water||'—'}</div></div>
+    <div class="li"><div>الحماية/مكافحة</div><div>${d.protect||'—'}</div></div>
+    ${d.harvest?`<div class="li"><div>الحصاد</div><div>${d.harvest}</div></div>`:''}
+  `;
+}
+
+/* نسخ/تصدير وبحث سريع */
+document.addEventListener('keydown', (e)=>{ if(e.key === 'home.html'){ e.preventDefault(); $('#search').focus(); }});
+$('#btn-copy').addEventListener('click', async ()=>{
+  const txt = $$('#results .rec').map(r => r.innerText.trim()).join('\n');
+  if(!txt) return;
+  await navigator.clipboard.writeText(txt); alert('تم النسخ.');
+});
+$('#btn-export').addEventListener('click', ()=>{
+  const region = $('#region').value;
+  const season = $$('#tabs .pill').find(x=>x.classList.contains('active'))?.dataset.season || 'winter';
+  const arr = DATA[region][season];
+  const blob = new Blob([JSON.stringify(arr, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `season_${region}_${season}.json`; a.click();
+  URL.revokeObjectURL(url);
+});
+
+/* تبديل فصل/منطقة/بحث */
+$('#region').addEventListener('change', ()=>{ renderList(); details.innerHTML='<div class="empty">اختر محصولًا…</div>'; });
+$('#search').addEventListener('input', renderList);
+$$('#tabs .pill').forEach(p=> p.addEventListener('click', ()=>{
+  $$('#tabs .pill').forEach(x=>x.classList.remove('active'));
+  p.classList.add('active');
+  renderList();
+  details.innerHTML='<div class="empty">اختر محصولًا…</div>';
+}));
+
+/* بدء التشغيل */
+(async function init(){
+  await loadWeatherToday();
+  renderList();
+})();
+</script>
+
+<div class="auth-overlay" id="auth-overlay"></div>
+<div class="auth-wrap" id="auth-wrap" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+  <div class="auth-card">
+    <button class="auth-close" id="auth-close" aria-label="إغلاق">✕</button>
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login">تسجيل الدخول</button>
+      <button class="auth-tab" data-tab="register">تسجيل حساب</button>
+    </div>
+    <div class="auth-body" style="padding:18px;background:linear-gradient(180deg, rgba(26,34,26,.92), rgba(26,34,26,.82)); border:1px solid rgba(255,255,255,.18);">
+      <form id="auth-login" class="auth-panel">
+        <div class="grid grid-2">
+          <div class="field">
+            <label class="label">اسم المستخدم / البريد</label>
+            <input class="input" type="text" placeholder="example@farm.test">
+          </div>
+          <div class="field">
+            <label class="label">كلمة المرور</label>
+            <input class="input" type="password" placeholder="••••••••">
+          </div>
+        </div>
+        <div class="row" style="justify-content:flex-start">
+          <button class="btn" type="button" id="login-submit">دخول</button>
+          <a class="btn" style="background:#0f1612" href="#" data-switch="register">إنشاء حساب</a>
+        </div>
+      </form>
+
+      <form id="auth-register" class="auth-panel hidden">
+        <div class="grid grid-2">
+          <div class="field"><label class="label">الاسم</label><input class="input" type="text" placeholder="قصي — المزارع"></div>
+          <div class="field"><label class="label">اسم المستخدم</label><input class="input" type="text" placeholder="farmer_qusay"></div>
+          <div class="field"><label class="label">البريد الإلكتروني</label><input class="input" type="email" placeholder="demo@farm.test"></div>
+          <div class="field"><label class="label">الموقع</label><input class="input" type="text" placeholder="وادي الدواسر"></div>
+          <div class="field"><label class="label">وسيلة الاتصال</label><input class="input" type="text" placeholder="0500000000"></div>
+          <div class="field"><label class="label">تاريخ الميلاد</label><input class="input" type="date" value="2000-06-26"></div>
+          <div class="field"><label class="label">كلمة المرور</label><input class="input" type="password" placeholder="••••••••"></div>
+          <div class="field"><label class="label">تأكيد كلمة المرور</label><input class="input" type="password" placeholder="••••••••"></div>
+        </div>
+        <div class="row" style="justify-content:flex-start">
+          <button class="btn" type="button" id="register-submit">تسجيل</button>
+          <a class="btn" style="background:#0f1612" href="#" data-switch="login">عندي حساب؟ دخول</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+  const qs=(s,c=document)=>c.querySelector(s), qsa=(s,c=document)=>Array.from(c.querySelectorAll(s));
+  const wrap=qs('#auth-wrap'), overlay=qs('#auth-overlay'), closeBtn=qs('#auth-close');
+  const tabs=qsa('.auth-tab');
+  const panels={ login:qs('#auth-login'), register:qs('#auth-register') };
+
+  function setMode(mode){
+    tabs.forEach(t=>t.classList.toggle('active', t.dataset.tab===mode));
+    Object.keys(panels).forEach(k=>panels[k].classList.toggle('hidden', k!==mode));
+  }
+  function openAuth(mode='login'){
+    setMode(mode);
+    overlay.style.display='block'; wrap.style.display='flex';
+    document.documentElement.style.overflow='hidden';
+  }
+  function closeAuth(){
+    overlay.style.display='none'; wrap.style.display='none';
+    document.documentElement.style.overflow='';
+  }
+
+  tabs.forEach(b=>b.addEventListener('click', ()=>setMode(b.dataset.tab)));
+  qsa('[data-switch="login"]').forEach(b=>b.addEventListener('click', (e)=>{e.preventDefault(); setMode('login');}));
+  qsa('[data-switch="register"]').forEach(b=>b.addEventListener('click', (e)=>{e.preventDefault(); setMode('register');}));
+  closeBtn?.addEventListener('click', closeAuth);
+  overlay?.addEventListener('click', closeAuth);
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeAuth(); });
+
+  // Intercept LOWER-MENU links pointing to login/register
+  document.addEventListener('click', (e)=>{
+    const a=e.target.closest('a'); if(!a) return;
+    const href=(a.getAttribute('href')||'').toLowerCase();
+    if(href.endsWith('login.html')||href==='/login'){ e.preventDefault(); openAuth('login'); }
+    if(href.endsWith('register.html')||href==='/register'){ e.preventDefault(); openAuth('register'); }
+  });
+
+  // Demo submit
+  const ok=(msg)=>{ alert(msg); closeAuth(); };
+  qs('#login-submit')?.addEventListener('click', ()=>ok('تم الدخول (استعراضي)'));
+  qs('#register-submit')?.addEventListener('click', ()=>ok('تم التسجيل (استعراضي)'));
+  // Expose for manual triggers if needed
+  window.openAuth=openAuth;
+})();
+</script>
+
+</body>
+</html>
