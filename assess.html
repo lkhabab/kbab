@@ -105,22 +105,13 @@
     <a href="yield.html">إنتاجية</a>
     <a href="assistant.html">مساعد</a>
     <a href="about.html">تعريف</a>
-    <a href="{{ url_for('main.home') }}">الرئيسية</a>
-    <a class="current" href="{{ url_for('main.assess') }}">تشخيص</a>
-    <a href="/weather">طقس</a>
-    <a href="/yield">إنتاجية</a>
-    <a href="/assistant">مساعد</a>
-    <a href="/about">تعريف</a>
     <span class="spacer"></span>
     <a href="profile.html">الملف الشخصي</a>
     <span class="sep">|</span>
     <a href="login.html">تسجيل الدخول</a>
-    <a href="/profile">الملف الشخصي</a>
     <span class="sep">|</span>
     <a href="register.html">تسجيل حساب</a>
-
     <span class="sep">|</span>
-    <a href="#">تسجيل خروج</a>
     <a href="{{ url_for('auth.logout') }}">تسجيل خروج</a>
   </nav>
 </header>
