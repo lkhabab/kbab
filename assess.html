@@ -7,7 +7,7 @@
 <style>
   :root{
     --bg: url("https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?q=80&w=2560&auto=format&fit=crop");
-    --green:#2e7d32; --green-dark:#1b5e20; --leaf:#66bb6a;
+    --green:#2e7d32; --green-dark:#1b5e20;
     --text:#f2f7f1; --muted:#cfe3cf; --card:#1b241b;
   }
   *{box-sizing:border-box}
@@ -20,8 +20,6 @@
       var(--bg) center/cover fixed no-repeat;
     display:flex; flex-direction:column; min-height:100dvh; overflow-x:hidden;
   }
-
-  /* NAV */
   header{position:sticky; top:0; z-index:10; background:rgba(18,24,18,.92); border-bottom:1px solid rgba(255,255,255,.12)}
   .nav{max-width:1200px; margin:auto; padding:10px 16px; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
   .brand{font-weight:800; margin-inline-end:8px}
@@ -29,14 +27,9 @@
   .nav a:hover{background:rgba(255,255,255,.06); opacity:1}
   .nav .spacer{flex:1}
   .current{background:rgba(46,125,50,.25); border:1px solid rgba(46,125,50,.5)}
-  .sep{opacity:.35; margin:0 4px}
-
-  /* LAYOUT */
   main{flex:1; padding:24px}
   .grid{max-width:1200px; margin:auto; display:grid; gap:18px; grid-template-columns:1fr}
-  @media(min-width:980px){ .grid{grid-template-columns:480px 1fr} }
-
-  /* CARDS */
+  @media(min-width:980px){ .grid{grid-template-columns:520px 1fr} }
   .card{
     background:linear-gradient(180deg, rgba(27,36,27,.92), rgba(27,36,27,.82)), var(--card);
     border:1px solid rgba(255,255,255,.16); border-radius:20px; padding:18px;
@@ -46,7 +39,6 @@
   h2{margin:0 0 12px; font-size:20px; color:var(--muted)}
   .hint{color:var(--muted); font-size:13px}
 
-  /* CHIPS */
   .section{margin-top:10px}
   .section-title{font-weight:800; margin:10px 0 8px}
   .chips{display:flex; flex-wrap:wrap; gap:8px}
@@ -67,7 +59,6 @@
   input[type="number"]:focus, select:focus{
     border-color:rgba(46,125,50,.75); box-shadow:0 0 0 4px rgba(46,125,50,.22);
   }
-
   .btn{
     width:100%; padding:14px; border:0; border-radius:14px; cursor:pointer;
     font-weight:800; font-size:16px; color:#fff;
@@ -75,211 +66,30 @@
     box-shadow:0 12px 22px rgba(46,125,50,.35), inset 0 1px 0 rgba(255,255,255,.25);
   }
 
-  /* RESULTS */
-  .badge{display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; font-weight:800}
-  .b-light{background:#1d3a1d; border:1px solid #3f7d3f}
-  .b-med{background:#3b3a1d; border:1px solid #9b8b2e}
-  .b-high{background:#3a1d1d; border:1px solid #b84848}
-  .list{display:grid; gap:10px; margin-top:12px}
-  .li{background:#243024; border:1px solid rgba(255,255,255,.14); border-radius:14px; padding:12px;
-      display:flex; justify-content:space-between; align-items:flex-start; gap:8px}
-  .pct{opacity:.85}
-  .tips{margin-top:14px; display:grid; gap:8px}
-  .tip{background:#1f2c1f; border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:10px 12px}
-  .warn{background:#3a1d1d; border-color:#b84848; color:#ffdede}
-
+  /* Symptoms improved UI */
+  .symptoms-box{background:#1e2a1e;border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:10px}
+  .sym-toolbar{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:8px}
+  #symSearch{flex:1; background:#243024; color:var(--text); border:1px solid rgba(255,255,255,.18); border-radius:12px; padding:10px 12px; outline:none}
+  #symSearch:focus{ border-color:rgba(46,125,50,.75); box-shadow:0 0 0 4px rgba(46,125,50,.22) }
+  .sym-count{font-size:13px; color:var(--muted); white-space:nowrap}
+  .filter-tags{display:flex; gap:6px; flex-wrap:wrap}
+  .tag{font-size:12px; padding:6px 10px; border-radius:999px; background:#243024; border:1px solid rgba(255,255,255,.18); cursor:pointer; user-select:none}
+  .tag.active{outline:2px solid rgba(46,125,50,.3); background:#2a372a}
+  .sym-actions{margin-inline-start:auto; display:flex; gap:6px}
+  .mini-btn{background:#243024; color:var(--text); border:1px solid rgba(255,255,255,.18); border-radius:10px; padding:8px 10px; cursor:pointer}
+  .sym-list{max-height:300px; overflow:auto; display:grid; gap:10px; padding:6px 2px}
+  .group{border:1px solid rgba(255,255,255,.12); border-radius:12px; overflow:hidden}
+  .group-h{background:#213021; padding:8px 12px; font-weight:800; font-size:14px; color:#cfe3cf; position:sticky; top:0}
+  .group-b{padding:8px; display:grid; gap:8px}
+  .sym-item{background:#243024;border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;transition:background .15s,border-color .15s}
+  .sym-item:hover{background:#2a372a;border-color:rgba(46,125,50,.45)}
+  .sym-item.active{outline:3px solid rgba(46,125,50,.25); background:#2a372a}
+  .sym-label{font-size:14px}
+  .sym-meta{font-size:12px; opacity:.85}
+  .chk{width:18px;height:18px;border-radius:4px;border:2px solid rgba(255,255,255,.6);display:inline-flex;align-items:center;justify-content:center;flex:0 0 18px}
+  .chk svg{width:14px;height:14px;display:none}
+  .sym-item.active .chk svg{display:block}
   footer{padding:12px 0 18px; text-align:center; font-size:12px; color:#e6efe6}
-</style>
-<style>
-
-/* ===== Auth Modal Shell (scoped .auth-*) ===== */
-.auth-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);display:none;z-index:9998}
-.auth-wrap{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:9999;direction:rtl}
-.auth-card{width:min(980px,96vw);border-radius:22px;overflow:hidden}
-.auth-tabs{display:flex;gap:8px;padding:10px 16px;border-bottom:1px dashed rgba(255,255,255,.12);flex-wrap:wrap;background:rgba(16,22,16,.8)}
-.auth-tab{cursor:pointer;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:#0f1612;color:#e6f2ea}
-.auth-tab.active{background:linear-gradient(135deg,#132016,#0c1510)}
-.auth-close{position:absolute;top:10px;left:10px;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:#0f1612;color:#e6f2ea;cursor:pointer}
-.auth-panel.hidden{display:none}
-@media (max-width:900px){.auth-card{width:94vw}}
-
-
-  :root{
-    --bg: url("https://images.pexels.com/photos/51947/tuscany-grape-field-nature-51947.jpeg"); /* حقول */
-    --green:#2e7d32; --green-dark:#1b5e20; --text:#f1f7f1; --muted:#d7e6d7;
-    --card:#1a221a; /* خلفية البطاقة */
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0; font-family:"Segoe UI",Tahoma,Arial,sans-serif; color:var(--text);
-    background:
-      radial-gradient(1100px 600px at 80% 20%, rgba(46,125,50,.18), transparent 60%),
-      radial-gradient(900px 500px at 15% 85%, rgba(141,110,99,.10), transparent 60%),
-      var(--bg) center/cover fixed no-repeat;
-    display:flex; flex-direction:column; min-height:100dvh; overflow-x:hidden;
-  }
-
-  /* شريط علوي واضح وثابت */
-  .topbar{
-    position:sticky; top:0; z-index:10;
-    background:rgba(15,20,15,.92); backdrop-filter:saturate(120%);
-    border-bottom:1px solid rgba(255,255,255,.12);
-  }
-  .nav{
-    max-width:1100px; margin:auto; padding:10px 16px;
-    display:flex; align-items:center; gap:16px;
-  }
-  .brand{font-weight:800; letter-spacing:.3px}
-  .nav a{color:#e9f7e9; text-decoration:none; padding:8px 10px; border-radius:10px; opacity:.9}
-  .nav a:hover{background:rgba(255,255,255,.06); opacity:1}
-  .nav .spacer{flex:1}
-  .nav .current{background:rgba(46,125,50,.25); border:1px solid rgba(46,125,50,.5)}
-
-  /* فلاش */
-  .alerts{max-width:min(92vw,560px); margin:14px auto 0}
-  .alert{padding:12px 14px; border-radius:12px; background:#f8d7da; color:#7b1f24; border:1px solid #f1aeb5}
-
-  /* الحاوية والبطاقة */
-  .wrap{flex:1; display:grid; place-items:center; perspective:1200px; padding:24px}
-  .auth-body .card{
-    width:min(92vw,560px); padding:32px; border-radius:22px;
-    background:linear-gradient(180deg, rgba(26,34,26,.92), rgba(26,34,26,.82)), var(--card);
-    border:1px solid rgba(255,255,255,.18);
-    box-shadow:0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
-    transform-style:preserve-3d; transition:transform .15s ease, box-shadow .2s ease
-  }
-  h1{margin:0 0 20px; font-size:32px; text-align:center}
-  .auth-body .field{margin:14px 0; text-align:right}
-  label{display:block; margin:0 0 6px; color:var(--muted); font-size:14px}
-  .auth-body .input{
-    width:100%; padding:16px; font-size:16px;
-    border-radius:14px; border:1px solid rgba(255,255,255,.22);
-    background:#243024; color:var(--text); outline:none; transition:.2s
-  }
-  .input::placeholder{color:#cfe3cf}
-  .input:focus{
-    border-color:rgba(46,125,50,.85);
-    box-shadow:0 0 0 4px rgba(46,125,50,.22);
-    background:#2a372a
-  }
-  .auth-body .row{display:flex; align-items:center; justify-content:space-between; gap:10px; color:var(--muted); font-size:14px}
-
-  .auth-body .btn{
-    width:100%; margin-top:16px; padding:16px; border:0; border-radius:16px; cursor:pointer;
-    font-weight:800; font-size:17px; color:#fff;
-    background:linear-gradient(180deg,var(--green),var(--green-dark));
-    box-shadow:0 12px 22px rgba(46,125,50,.35), inset 0 1px 0 rgba(255,255,255,.25);
-    transform:translateZ(30px); transition:transform .12s ease, filter .12s ease, box-shadow .12s ease
-  }
-  .btn:hover{filter:brightness(1.05)}
-  .btn:active{transform:translateZ(20px) scale(.99); box-shadow:0 8px 16px rgba(46,125,50,.4)}
-
-  .auth-body .switch{margin-top:12px; text-align:center; font-size:14px}
-  .auth-body .switch a{color:#e9f7e9; font-weight:700; text-decoration:none}
-  .auth-body .switch a:hover{text-decoration:underline}
-
-  footer{padding:12px 0 18px; text-align:center; font-size:12px; color:#e6efe6}
-
-
-/* === Scoped Navbar (.ag-*) — لا يغير أي ستايل آخر === */
-.ag-navbar{position:sticky;top:0;z-index:1000;background:rgba(15,18,20,.85);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.08)}
-.ag-container{max-width:1200px;margin:auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.ag-brand{display:inline-flex;align-items:center;gap:8px;color:#e6f2ea;text-decoration:none;font-size:16px}
-.ag-logo{width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,#2e7d32,#6dd37b);display:inline-block}
-.ag-nav{display:flex;flex-wrap:wrap;gap:8px}
-.ag-link{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:#0e1316;color:#dff3e7;text-decoration:none;font-size:13px}
-.ag-link:hover{background:#121a15}
-@media (max-width:900px){
-  .ag-nav{gap:6px}
-  .ag-link{font-size:12px;padding:7px 10px}
-}
-
-
-  :root{
-    --bg: url("https://images.pexels.com/photos/51947/tuscany-grape-field-nature-51947.jpeg"); /* قمح */
-    --green:#2e7d32; --green-dark:#1b5e20; --text:#f1f7f1; --muted:#d7e6d7;
-    --card:#1a221a;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0; font-family:"Segoe UI",Tahoma,Arial,sans-serif; color:var(--text);
-    background:
-      radial-gradient(1100px 600px at 80% 20%, rgba(46,125,50,.18), transparent 60%),
-      radial-gradient(900px 500px at 15% 85%, rgba(141,110,99,.10), transparent 60%),
-      var(--bg) center/cover fixed no-repeat;
-    display:flex; flex-direction:column; min-height:100dvh; overflow-x:hidden;
-  }
-
-  .topbar{position:sticky; top:0; z-index:10; background:rgba(15,20,15,.92); border-bottom:1px solid rgba(255,255,255,.12)}
-  .nav{max-width:1100px; margin:auto; padding:10px 16px; display:flex; align-items:center; gap:16px}
-  .brand{font-weight:800}
-  .nav a{color:#e9f7e9; text-decoration:none; padding:8px 10px; border-radius:10px; opacity:.9}
-  .nav a:hover{background:rgba(255,255,255,.06); opacity:1}
-  .nav .spacer{flex:1}
-  .nav .current{background:rgba(46,125,50,.25); border:1px solid rgba(46,125,50,.5)}
-
-  .alerts{max-width:min(96vw,980px); margin:14px auto 0}
-  .alert{padding:12px 14px; border-radius:12px; background:#f8d7da; color:#7b1f24; border:1px solid #f1aeb5}
-
-  .wrap{flex:1; display:grid; place-items:center; perspective:1200px; padding:24px}
-  .auth-body .card{
-    width:min(96vw,980px); padding:32px; border-radius:22px;
-    background:linear-gradient(180deg, rgba(26,34,26,.92), rgba(26,34,26,.82)), var(--card);
-    border:1px solid rgba(255,255,255,.18);
-    box-shadow:0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
-    transform-style:preserve-3d; transition:transform .15s ease, box-shadow .2s ease
-  }
-  h1{margin:0 0 18px; font-size:30px; text-align:center}
-
-  .auth-body .grid{display:grid; grid-template-columns:1fr; gap:14px}
-  @media (min-width:720px){ .auth-body .grid{ grid-template-columns:1fr 1fr; } }
-
-  .auth-body .field{display:flex; flex-direction:column; gap:6px}
-  .auth-body .label{color:var(--muted); font-size:14px}
-  .auth-body .input{
-    width:100%; padding:16px; font-size:16px;
-    border-radius:14px; border:1px solid rgba(255,255,255,.22);
-    background:#243024; color:var(--text); outline:none; transition:.2s
-  }
-  .input::placeholder{color:#cfe3cf}
-  .input:focus{ border-color:rgba(46,125,50,.85); box-shadow:0 0 0 4px rgba(46,125,50,.22); background:#2a372a }
-  .error{color:#ffb3b3; font-size:12px}
-
-  .auth-body .row{display:flex; gap:12px; margin-top:10px}
-  .auth-body .row .auth-body .btn{flex:1}
-
-  .auth-body .btn{
-    padding:16px; border:0; border-radius:16px; cursor:pointer;
-    font-weight:800; font-size:17px; color:#fff;
-    background:linear-gradient(180deg,var(--green),var(--green-dark));
-    box-shadow:0 12px 22px rgba(46,125,50,.35), inset 0 1px 0 rgba(255,255,255,.25);
-    transform:translateZ(30px); transition:transform .12s ease, filter .12s ease, box-shadow .12s ease
-  }
-  .btn:hover{filter:brightness(1.05)}
-  .btn:active{transform:translateZ(20px) scale(.99); box-shadow:0 8px 16px rgba(46,125,50,.4)}
-
-  .muted-link{display:block; text-align:center; padding:16px; border-radius:16px;
-    background:#243024; border:1px solid rgba(255,255,255,.22); color:#e9f7e9; text-decoration:none}
-  .muted-link:hover{text-decoration:underline}
-
-  footer{padding:12px 0 18px; text-align:center; font-size:12px; color:#e6efe6}
-
-
-/* === Scoped Navbar (.ag-*) — لا يغير أي ستايل آخر === */
-.ag-navbar{position:sticky;top:0;z-index:1000;background:rgba(15,18,20,.85);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.08)}
-.ag-container{max-width:1200px;margin:auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.ag-brand{display:inline-flex;align-items:center;gap:8px;color:#e6f2ea;text-decoration:none;font-size:16px}
-.ag-logo{width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,#2e7d32,#6dd37b);display:inline-block}
-.ag-nav{display:flex;flex-wrap:wrap;gap:8px}
-.ag-link{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:#0e1316;color:#dff3e7;text-decoration:none;font-size:13px}
-.ag-link:hover{background:#121a15}
-@media (max-width:900px){
-  .ag-nav{gap:6px}
-  .ag-link{font-size:12px;padding:7px 10px}
-}
-
 </style>
 </head>
 <body>
@@ -287,23 +97,16 @@
 <header>
   <nav class="nav">
     <div class="brand">🌱 المزارع</div>
-    <a href="home.html">الرئيسية</a>
-    <!-- أهم تعديل هنا -->
-    <a class="current" href="assess.html">تشخيص</a>
-    <!-- هذه مؤقتة كمسارات ثابتة عشان ما تعمل BuildError لو ما عندك بلوبرنت -->
-    <a href="weather.html">طقس</a>
-    <a href="yield.html">إنتاجية</a>
-    <a href="assistant.html">مساعد</a>
-    <a href="about.html">تعريف</a>
+    <a href="{{ url_for('main.home') }}">الرئيسية</a>
+    <a class="current" href="{{ url_for('main.assess') }}">تشخيص</a>
+    <a href="/weather">طقس</a>
+    <a href="/yield">إنتاجية</a>
+    <a href="/assistant">مساعد</a>
+    <a href="/about">تعريف</a>
     <span class="spacer"></span>
-    <a href="profile.html">الملف الشخصي</a>
+    <a href="/profile">الملف الشخصي</a>
     <span class="sep">|</span>
-    <a href="login.html">تسجيل الدخول</a>
-    <span class="sep">|</span>
-    <a href="register.html">تسجيل حساب</a>
-
-    <span class="sep">|</span>
-    <a href="#">تسجيل خروج</a>
+    <a href="{{ url_for('auth.logout') }}">تسجيل خروج</a>
   </nav>
 </header>
 
@@ -318,38 +121,40 @@
       <div class="section">
         <div class="section-title">الجزء المصاب</div>
         <div class="chips" id="partChips">
-          <label class="chip"><input type="radio" name="part" value="leaves"><span>أوراق 🍃</span></label>
+          <label class="chip active"><input type="radio" name="part" value="leaves" checked><span>أوراق 🍃</span></label>
           <label class="chip"><input type="radio" name="part" value="roots"><span>جذور 🌱</span></label>
           <label class="chip"><input type="radio" name="part" value="stems"><span>ساق 🌿</span></label>
           <label class="chip"><input type="radio" name="part" value="fruits"><span>ثمار 🍅</span></label>
+          <label class="chip"><input type="radio" name="part" value="flowers_buds"><span>الأزهار والبراعم الزهرية 🌸</span></label>
+          <label class="chip"><input type="radio" name="part" value="soil_env"><span>التربة/البيئة 🧪</span></label>
         </div>
       </div>
 
       <!-- الأعراض -->
       <div class="section">
         <div class="section-title">الأعراض</div>
-        <div class="chips" id="symptomsChips">
-          <!-- أوراق -->
-          <label class="chip" data-part="leaves"><input type="checkbox" value="yellow_leaves"><span>أوراق صفراء</span></label>
-          <label class="chip" data-part="leaves"><input type="checkbox" value="chlorosis_pattern"><span>اصفرار متدرج</span></label>
-          <label class="chip" data-part="leaves"><input type="checkbox" value="leaf_spots"><span>بقع على الأوراق</span></label>
-          <label class="chip" data-part="leaves"><input type="checkbox" value="powdery"><span>بودرة بيضاء</span></label>
 
-          <!-- جذور -->
-          <label class="chip" data-part="roots"><input type="checkbox" value="root_browning"><span>اسمرار الجذور</span></label>
-          <label class="chip" data-part="roots"><input type="checkbox" value="root_rot"><span>تعفن جذور</span></label>
-          <label class="chip" data-part="roots"><input type="checkbox" value="stunted_roots"><span>ضعف نمو الجذور</span></label>
+        <div class="symptoms-box">
+          <div class="sym-toolbar">
+            <input id="symSearch" type="text" placeholder="ابحث عن عرض… (مثلاً: اصفرار، بقع، ذبول)">
+            <div class="filter-tags" id="tagBar">
+              <span class="tag" data-tag="fungal">فطري</span>
+              <span class="tag" data-tag="bacterial">بكتيري</span>
+              <span class="tag" data-tag="insect">حشري</span>
+              <span class="tag" data-tag="deficiency">نقص عناصر</span>
+              <span class="tag" data-tag="viral">فيروسي</span>
+              <span class="tag" data-tag="physio">فسيولوجي/بيئي</span>
+            </div>
+            <div class="sym-actions">
+              <button type="button" class="mini-btn" id="btnSelectAll">تحديد الكل</button>
+              <button type="button" class="mini-btn" id="btnClearAll">مسح الكل</button>
+            </div>
+            <span class="sym-count" id="symCount">0 مختارة</span>
+          </div>
 
-          <!-- ساق -->
-          <label class="chip" data-part="stems"><input type="checkbox" value="stem_lesions"><span>تقروح الساق</span></label>
-          <label class="chip" data-part="stems"><input type="checkbox" value="wilting"><span>ذبول مفاجئ</span></label>
-
-          <!-- ثمار -->
-          <label class="chip" data-part="fruits"><input type="checkbox" value="fruit_spots"><span>بقع على الثمار</span></label>
-          <label class="chip" data-part="fruits"><input type="checkbox" value="fruit_rot"><span>تعفن ثمرة</span></label>
-          <label class="chip" data-part="fruits"><input type="checkbox" value="cracking"><span>تشقق الثمار</span></label>
+          <div id="symList" class="sym-list" role="listbox" aria-label="قائمة الأعراض"></div>
+          <p class="hint" id="symHint">اختر جزءًا لعرض الأعراض المناسبة. يمكنك تحديد عدة أعراض بالنقر عليها.</p>
         </div>
-        <p class="hint" id="symHint">اختر جزءًا أولًا لعرض الأعراض الأنسب.</p>
       </div>
 
       <!-- مؤشر الزمن -->
@@ -382,67 +187,345 @@
 <footer>khabab and ahmd @2025</footer>
 
 <script>
-  // تفعيل chips + فلترة الأعراض حسب الجزء
-  document.querySelectorAll('.chip').forEach(ch=>{
-    ch.addEventListener('click', e=>{
-      const input = ch.querySelector('input');
-      if(input.type === 'checkbox'){
-        input.checked = !input.checked;
-        ch.classList.toggle('active', input.checked);
-      }else{
-        document.querySelectorAll('input[name="part"]').forEach(r=>r.closest('.chip').classList.remove('active'));
-        input.checked = true; ch.classList.add('active');
-        filterSymptoms(input.value);
+  /* ========= كتالوج الأعراض مع تصنيفات فرعية + وسوم ========= */
+  // كل جزء يحتوي مجموعات (optgroup بصري) + items: {id,label,tags:[...]}
+  const SYM = {
+    leaves: {
+      groups: {
+        "نقص عناصر": [
+          {id:"yellow_leaves",label:"أوراق صفراء",tags:["deficiency"]},
+          {id:"interveinal_chlorosis",label:"اصفرار بين العروق",tags:["deficiency"]},
+          {id:"leaf_burn",label:"حروق حواف الأوراق",tags:["deficiency","physio"]},
+          {id:"mottling",label:"تبقع نقص عناصر",tags:["deficiency"]}
+        ],
+        "أمراض فطرية": [
+          {id:"leaf_spots",label:"بقع على الأوراق (فطري)",tags:["fungal"]},
+          {id:"powdery",label:"بودرة بيضاء (بياض دقيقي)",tags:["fungal"]},
+          {id:"downy",label:"عفن زغبي رمادي",tags:["fungal"]},
+          {id:"rust_leaf",label:"صدأ أوراق",tags:["fungal"]}
+        ],
+        "أمراض بكتيرية": [
+          {id:"oily_lesions",label:"لطخات زيتية",tags:["bacterial"]},
+          {id:"water_soaked",label:"تبقعات مائية",tags:["bacterial"]}
+        ],
+        "فيروسية/حشرية": [
+          {id:"mosaic",label:"موزاييك/تبقع فيروسي",tags:["viral"]},
+          {id:"leaf_curl",label:"تجعد أوراق (فيروس/عناكب)",tags:["viral","insect"]},
+          {id:"holes",label:"ثقوب/تغذية حشرية",tags:["insect"]}
+        ],
+        "فسيولوجية/بيئية": [
+          {id:"necrosis",label:"نخر موضعي",tags:["physio"]},
+          {id:"sunburn_leaf",label:"حرق شمس",tags:["physio"]}
+        ]
       }
-      e.preventDefault();
-    });
-  });
-  function filterSymptoms(part){
-    document.querySelectorAll('#symptomsChips .chip').forEach(c=>{
-      const p = c.getAttribute('data-part');
-      c.style.display = (!part || p===part) ? 'inline-flex' : 'none';
-    });
-    document.getElementById('symHint').textContent = part ? "" : "اختر جزءًا أولًا لعرض الأعراض الأنسب.";
+    },
+    roots: {
+      groups: {
+        "أمراض فطرية/بكتيرية": [
+          {id:"root_rot",label:"تعفن الجذور",tags:["fungal"]},
+          {id:"black_root",label:"سواد/تعفن أسود",tags:["fungal"]},
+          {id:"ooze_root",label:"إفرازات لزجة (بكتيري)",tags:["bacterial"]}
+        ],
+        "نقص عناصر/بنية": [
+          {id:"root_browning",label:"اسمرار الجذور",tags:["deficiency"]},
+          {id:"stunted_roots",label:"ضعف/قصر الجذور",tags:["deficiency","physio"]},
+          {id:"poor_root_hairs",label:"قلة الشعيرات الجذرية",tags:["deficiency"]}
+        ],
+        "حشرية": [
+          {id:"root_nematodes",label:"عقد/انتفاخ نيماتودا",tags:["insect"]}
+        ],
+        "فسيولوجية": [
+          {id:"root_cracks",label:"تشققات الجذور",tags:["physio"]}
+        ]
+      }
+    },
+    stems: {
+      groups: {
+        "فطري": [
+          {id:"stem_rust",label:"صدأ الساق",tags:["fungal"]},
+          {id:"stem_lesions",label:"تقروح/تبقع ساق",tags:["fungal"]}
+        ],
+        "بكتيري": [
+          {id:"ooze",label:"نزّ إفرازات بكتيرية",tags:["bacterial"]}
+        ],
+        "حشري/ميكانيكي": [
+          {id:"girdling",label:"اختناق الساق",tags:["physio"]},
+          {id:"stem_cracks",label:"تشقق الساق",tags:["physio"]},
+          {id:"borer_damage",label:"أنفاق حفّارات",tags:["insect"]}
+        ],
+        "ذبول/فسيولوجي": [
+          {id:"wilting",label:"ذبول مفاجئ",tags:["physio"]},
+          {id:"lodging",label:"رقاد/ضعف",tags:["physio"]}
+        ]
+      }
+    },
+    fruits: {
+      groups: {
+        "فطري/بكتيري": [
+          {id:"fruit_spots",label:"بقع على الثمار",tags:["fungal","bacterial"]},
+          {id:"fruit_rot",label:"تعفن ثمار",tags:["fungal"]},
+          {id:"oily_fruit",label:"لطخات مائية/دهنية",tags:["bacterial"]}
+        ],
+        "فسيولوجي": [
+          {id:"cracking",label:"تشقق الثمار",tags:["physio"]},
+          {id:"sunscald",label:"لسعة شمس",tags:["physio"]},
+          {id:"blossom_end_rot",label:"تعفن القمة الزهرية",tags:["deficiency","physio"]},
+          {id:"internal_browning",label:"اسمرار داخلي",tags:["physio"]}
+        ],
+        "تلقيح/فيروس": [
+          {id:"deformed_fruits",label:"تشوه الثمار",tags:["viral","physio"]}
+        ]
+      }
+    },
+    flowers_buds: {
+      groups: {
+        "تلقيح/حرارة": [
+          {id:"flower_drop",label:"تساقط الأزهار",tags:["physio"]},
+          {id:"poor_fruit_set",label:"عقد ثمري ضعيف",tags:["physio"]},
+          {id:"pollen_issue",label:"ضعف حبوب اللقاح",tags:["physio"]}
+        ],
+        "فطري/فيروسي": [
+          {id:"bud_blight",label:"لفحة براعم",tags:["fungal"]},
+          {id:"deformed_flowers",label:"تشوه الأزهار (فيروسي)",tags:["viral"]}
+        ],
+        "فسيولوجي": [
+          {id:"bud_dieback",label:"جفاف البراعم",tags:["physio"]},
+          {id:"flower_necrosis",label:"نخر زهري",tags:["physio"]}
+        ]
+      }
+    },
+    soil_env: {
+      groups: {
+        "تربة/ماء": [
+          {id:"salinity_signs",label:"علامات ملوحة (قشرة/ذبول)",tags:["physio"]},
+          {id:"waterlogging",label:"تغدق/تشبع ماء",tags:["physio"]},
+          {id:"ph_issue",label:"مشاكل pH (قلوية/حموضة)",tags:["physio"]}
+        ],
+        "مناخ/رياح": [
+          {id:"cold_stress",label:"إجهاد برودة",tags:["physio"]},
+          {id:"heat_stress",label:"إجهاد حرارة",tags:["physio"]},
+          {id:"wind_damage",label:"ضرر رياح/رمل",tags:["physio"]}
+        ],
+        "تغذية عامة": [
+          {id:"nutrient_def_mix",label:"نقص عناصر مركّب",tags:["deficiency"]},
+          {id:"general_stunting",label:"تقزّم عام",tags:["deficiency","physio"]}
+        ]
+      }
+    }
+  };
+
+  /* ========= حالة واجهة الأعراض ========= */
+  let currentPart = 'leaves';
+  let activeTags = new Set(); // فلاتر الوسوم
+  const symListEl = document.getElementById('symList');
+  const symSearchEl = document.getElementById('symSearch');
+  const symCountEl = document.getElementById('symCount');
+  const tagBar = document.getElementById('tagBar');
+
+  // بناء عنصر عرض
+  function makeSymItem(item){
+    const div = document.createElement('div');
+    div.className = 'sym-item';
+    div.dataset.id = item.id;
+    div.dataset.tags = item.tags.join(',');
+    div.innerHTML = `
+      <div>
+        <div class="sym-label">${item.label}</div>
+        <div class="sym-meta">${item.tags.map(t=>tagLabel(t)).join(' · ')}</div>
+      </div>
+      <span class="chk" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>`;
+    div.addEventListener('click', ()=>{ div.classList.toggle('active'); updateSelectedCount(); });
+    return div;
   }
 
-  // قاعدة مبسطة
-  const knowledge = {
-    yellow_leaves: { diseases: {nitrogen_def:0.7, wheat_rust:0.3}, tips:["أضف سماد نيتروجين","زد الري يومين بالأسبوع"] },
-    chlorosis_pattern: { diseases: {iron_def:0.6, potassium_def:0.4}, tips:["رش عنصر حديد مخلب","تحسين صرف التربة"] },
-    leaf_spots: { diseases: {leaf_spot_fungus:0.7, bacterial_leaf_spot:0.3}, tips:["استعمل مبيد فطري عضوي","تجنب البلل الليلي للأوراق"] },
-    powdery: { diseases: {powdery_mildew:0.8, nutrient_imbalance:0.2}, tips:["مبيد عضوي للبياض الدقيقي","تهوية جيدة وتقليل الرطوبة"] },
-    root_browning: { diseases:{root_deficiency:0.5, root_fungus:0.5}, tips:["تحسين الصرف","معالجة فطرية للتربة"] },
-    root_rot:{ diseases:{root_fungus:0.8, overwatering:0.2}, tips:["خفض الري","معالجة بمبيد فطري للتربة"] },
-    stunted_roots:{ diseases:{ph_compaction:0.5, root_nematodes:0.5}, tips:["تهوية التربة","تحليل تربة ومكافحة نيماتودا"] },
-    stem_lesions:{ diseases:{stem_rust:0.7, mechanical_injury:0.3}, tips:["مبيد مناسب للصدأ","دعم الساق"] },
-    wilting:{ diseases:{vascular_wilt:0.8, drought:0.2}, tips:["تحقق من الانسداد الوعائي","ري منتظم"] },
-    fruit_spots:{ diseases:{anthracnose:0.6, bacterial_spot:0.4}, tips:["مبيد نحاسي خفيف","تحسين حركة الهواء"] },
-    fruit_rot:{ diseases:{fruit_rot_fungus:0.7, poor_storage:0.3}, tips:["حصاد مبكر قليلًا","تعقيم أدوات القطف"] },
-    cracking:{ diseases:{irrigation_irregular:0.8, calcium_def:0.2}, tips:["توحيد الري","إضافة كالسيوم"] }
-  };
-  const diseaseLabels = {
-    nitrogen_def:"نقص نيتروجين", wheat_rust:"صدأ القمح", iron_def:"نقص حديد",
-    potassium_def:"نقص بوتاسيوم", leaf_spot_fungus:"بقع أوراق (فطري)",
-    bacterial_leaf_spot:"بقع أوراق بكتيرية", powdery_mildew:"بياض دقيقي",
-    nutrient_imbalance:"اختلال عناصر", root_deficiency:"نقص عناصر بالجذور",
-    root_fungus:"فطر جذور", overwatering:"ري زائد", ph_compaction:"تربة مضغوطة/حموضة غير مناسبة",
-    root_nematodes:"نيماتودا الجذور", stem_rust:"صدأ الساق", mechanical_injury:"ضرر ميكانيكي",
-    vascular_wilt:"ذبول وعائي", drought:"جفاف", anthracnose:"أنثراكنوز",
-    bacterial_spot:"بقع بكتيرية على الثمار", fruit_rot_fungus:"تعفن فطري للثمار",
-    poor_storage:"تخزين سيئ", irrigation_irregular:"عدم انتظام الري", calcium_def:"نقص كالسيوم"
-  };
-  const severeKeywords = new Set(["wilting","root_rot","fruit_rot","stem_lesions","vascular_wilt"]);
+  function tagLabel(t){
+    return {
+      fungal:'فطري', bacterial:'بكتيري', insect:'حشري',
+      deficiency:'نقص عناصر', viral:'فيروسي', physio:'فسيولوجي/بيئي'
+    }[t] || t;
+  }
 
+  // رسم مجموعة (optgroup بصري)
+  function makeGroup(title, items){
+    const box = document.createElement('div'); box.className='group';
+    const h = document.createElement('div'); h.className='group-h'; h.textContent = title;
+    const b = document.createElement('div'); b.className='group-b';
+    items.forEach(it=>b.appendChild(makeSymItem(it)));
+    box.appendChild(h); box.appendChild(b);
+    return box;
+  }
+
+  // فلترة حسب البحث والوسوم
+  function filterItems(items){
+    const q = (symSearchEl.value||'').trim();
+    const tagFilterActive = activeTags.size>0;
+    return items.filter(it=>{
+      const okQuery = !q || it.label.includes(q) || it.id.includes(q);
+      const okTags = !tagFilterActive || it.tags.some(t=>activeTags.has(t));
+      return okQuery && okTags;
+    });
+  }
+
+  // إعادة بناء القائمة
+  function renderSymptoms(){
+    symListEl.innerHTML = '';
+    const part = SYM[currentPart]; if(!part){ return; }
+    const groups = part.groups;
+    let total = 0;
+    Object.keys(groups).forEach(g=>{
+      const filtered = filterItems(groups[g]);
+      if(filtered.length){
+        symListEl.appendChild(makeGroup(g, filtered));
+        total += filtered.length;
+      }
+    });
+    document.getElementById('symHint').textContent = total? "اختر عرضًا أو أكثر من القائمة." : "لا توجد أعراض مطابقة للفلتر.";
+    updateSelectedCount();
+  }
+
+  // عداد المختارات
+  function updateSelectedCount(){
+    symCountEl.textContent = `${document.querySelectorAll('#symList .sym-item.active').length} مختارة`;
+  }
+
+  // تحديد الكل/مسح الكل
+  document.getElementById('btnSelectAll').addEventListener('click', ()=>{
+    document.querySelectorAll('#symList .sym-item').forEach(el=>el.classList.add('active'));
+    updateSelectedCount();
+  });
+  document.getElementById('btnClearAll').addEventListener('click', ()=>{
+    document.querySelectorAll('#symList .sym-item').forEach(el=>el.classList.remove('active'));
+    updateSelectedCount();
+  });
+
+  // بحث فوري
+  symSearchEl.addEventListener('input', renderSymptoms);
+
+  // فلتر الوسوم
+  tagBar.addEventListener('click', (e)=>{
+    const tag = e.target.closest('.tag'); if(!tag) return;
+    const key = tag.dataset.tag;
+    if(tag.classList.toggle('active')) activeTags.add(key);
+    else activeTags.delete(key);
+    renderSymptoms();
+  });
+
+  // تفعيل تغيير الجزء المصاب (event delegation على الحاوية — حل مشكلة عدم الاستجابة)
+  document.getElementById('partChips').addEventListener('click', (e)=>{
+    const chip = e.target.closest('.chip'); if(!chip) return;
+    const input = chip.querySelector('input[type="radio"]');
+    if(!input) return;
+    input.checked = true;
+    document.querySelectorAll('#partChips .chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    currentPart = input.value;
+    renderSymptoms();
+  });
+
+  // تعبئة أولية
+  window.addEventListener('DOMContentLoaded', ()=>{
+    renderSymptoms();
+  });
+
+  /* ========= قاعدة مبسطة (كما كانت مع توسعات طفيفة) ========= */
+  const knowledge = {
+    yellow_leaves:{diseases:{nitrogen_def:0.7}, tips:["أضف نيتروجين","زد الري يومين بالأسبوع"]},
+    interveinal_chlorosis:{diseases:{iron_def:0.6, magnesium_def:0.4}, tips:["رش حديد مخلب","توازن سمادي"]},
+    leaf_burn:{diseases:{salt_burn:0.5}, tips:["غسيل أملاح","تظليل"]},
+    mottling:{diseases:{deficiency:1.0}, tips:["تحليل ورقي","خطة تغذية"]},
+    leaf_spots:{diseases:{leaf_spot_fungus:0.7}, tips:["مبيد فطري عضوي","تهوية"]},
+    powdery:{diseases:{powdery_mildew:0.8}, tips:["مبيد بياض دقيقي","تقليل الرطوبة"]},
+    downy:{diseases:{downy_mildew:0.8}, tips:["مبيد زغبي","تحسين التهوية"]},
+    rust_leaf:{diseases:{rust:1.0}, tips:["مبيد صدأ","أصناف مقاومة"]},
+    oily_lesions:{diseases:{bacterial_blight:1.0}, tips:["مبيد بكتيري","تجنب البلل الليلي"]},
+    water_soaked:{diseases:{bacterial_spot:1.0}, tips:["نحاسي خفيف","تعقيم أدوات"]},
+    mosaic:{diseases:{viral_mosaic:1.0}, tips:["إزالة المصاب","مكافحة نواقل"]},
+    leaf_curl:{diseases:{virus:0.6, mites:0.4}, tips:["مكافحة نواقل/عناكب"]},
+    holes:{diseases:{chewing_insects:1.0}, tips:["مصائد ضوئية","مبيد مرخّص"]},
+    necrosis:{diseases:{necrosis:1.0}, tips:["قص الأجزاء الميتة","تحسين التغذية"]},
+    sunburn_leaf:{diseases:{sunscald:1.0}, tips:["تظليل","ري منتظم"]},
+
+    root_rot:{diseases:{root_fungus:0.8}, tips:["مبيد تربة فطري","خفض الري"]},
+    black_root:{diseases:{black_root:1.0}, tips:["صرف جيد","تعقيم"]},
+    ooze_root:{diseases:{bacterial_wilt:1.0}, tips:["تعقيم الأدوات","إدارة الرطوبة"]},
+    root_browning:{diseases:{root_deficiency:0.5}, tips:["تحسين الصرف","توازن سمادي"]},
+    stunted_roots:{diseases:{ph_compaction:0.5}, tips:["تهوية التربة","تحليل تربة"]},
+    poor_root_hairs:{diseases:{deficiency:1.0}, tips:["فوسفور/زنك"]},
+    root_nematodes:{diseases:{root_nematodes:1.0}, tips:["دورات زراعية","مبيد نيماتودا"]},
+    root_cracks:{diseases:{drought:0.6, calcium_def:0.4}, tips:["توحيد الري","كالسيوم"]},
+
+    stem_rust:{diseases:{stem_rust:1.0}, tips:["مبيد صدأ"]},
+    stem_lesions:{diseases:{stem_canker:1.0}, tips:["تقليم صحي"]},
+    ooze:{diseases:{bacterial_wilt:1.0}, tips:["تعقيم الأدوات"]},
+    girdling:{diseases:{mechanical:1.0}, tips:["إزالة الرباط الضار"]},
+    stem_cracks:{diseases:{irrigation_irregular:0.8}, tips:["توحيد الري"]},
+    borer_damage:{diseases:{borer:1.0}, tips:["مصائد فرمونية","إزالة بؤر الإصابة"]},
+    wilting:{diseases:{vascular_wilt:0.8}, tips:["فحص الانسداد الوعائي","ري منتظم"]},
+    lodging:{diseases:{weak_stem:1.0}, tips:["بوتاسيوم","دعامات"]},
+
+    fruit_spots:{diseases:{anthracnose:0.6, bacterial_spot:0.4}, tips:["نحاسي خفيف","تهوية"]},
+    fruit_rot:{diseases:{fruit_rot_fungus:0.7}, tips:["تعقيم أدوات القطف","حصاد مبكر"]},
+    oily_fruit:{diseases:{bacterial_blight:1.0}, tips:["مضاد بكتيري"]},
+    cracking:{diseases:{irrigation_irregular:0.8}, tips:["توحيد الري","كالسيوم"]},
+    sunscald:{diseases:{sunscald:1.0}, tips:["تظليل"]},
+    blossom_end_rot:{diseases:{calcium_def:1.0}, tips:["كالسيوم منتظم"]},
+    internal_browning:{diseases:{heat_stress:1.0}, tips:["تبريد سريع بعد الحصاد"]},
+    deformed_fruits:{diseases:{pollination_issue:1.0}, tips:["جذب ملقحات"]},
+
+    flower_drop:{diseases:{heat_stress:0.6}, tips:["تظليل","رش كالسيوم/بورون"]},
+    poor_fruit_set:{diseases:{pollination_issue:1.0}, tips:["جذب ملقحات"]},
+    pollen_issue:{diseases:{pollen_issue:1.0}, tips:["رطوبة معتدلة"]},
+    bud_blight:{diseases:{bud_blight:1.0}, tips:["مبيد فطري"]},
+    deformed_flowers:{diseases:{virus:1.0}, tips:["مكافحة نواقل"]},
+    bud_dieback:{diseases:{dieback:1.0}, tips:["تقليم صحي"]},
+    flower_necrosis:{diseases:{flower_necrosis:1.0}, tips:["تعقيم الأدوات"]},
+
+    salinity_signs:{diseases:{salinity:1.0}, tips:["غسيل أملاح"]},
+    waterlogging:{diseases:{waterlogging:1.0}, tips:["تحسين الصرف"]},
+    ph_issue:{diseases:{ph_issue:1.0}, tips:["تعديل pH"]},
+    cold_stress:{diseases:{cold_stress:1.0}, tips:["تدفئة/تغطية"]},
+    heat_stress:{diseases:{heat_stress:1.0}, tips:["تظليل وضبط ري"]},
+    wind_damage:{diseases:{wind_damage:1.0}, tips:["مصدات رياح"]},
+    nutrient_def_mix:{diseases:{nutrient_def_mix:1.0}, tips:["خطة تغذية شاملة"]},
+    general_stunting:{diseases:{general_stunting:1.0}, tips:["تسميد متوازن","تحسين إدارة الري"]}
+  };
+
+  const diseaseLabels = {
+    nitrogen_def:"نقص نيتروجين", iron_def:"نقص حديد", magnesium_def:"نقص مغنيسيوم",
+    salt_burn:"حرق أملاح", deficiency:"نقص عناصر", leaf_spot_fungus:"بقع أوراق (فطري)",
+    powdery_mildew:"بياض دقيقي", downy_mildew:"عفن زغبي", rust:"صدأ أوراق",
+    bacterial_blight:"لفحة بكتيرية", bacterial_spot:"بقع بكتيرية",
+    viral_mosaic:"فيروس موزاييك", virus:"فيروس", mites:"عناكب",
+    chewing_insects:"حشرات قاضمة", necrosis:"نخر", sunscald:"لسعة شمس",
+    root_fungus:"فطر جذور", black_root:"تعفن أسود", bacterial_wilt:"ذبول بكتيري",
+    root_deficiency:"نقص عناصر بالجذور", ph_compaction:"تربة مضغوطة/حموضة غير مناسبة",
+    root_nematodes:"نيماتودا الجذور", drought:"جفاف", calcium_def:"نقص كالسيوم",
+    stem_rust:"صدأ الساق", stem_canker:"كانكر الساق", mechanical:"ضرر ميكانيكي",
+    irrigation_irregular:"عدم انتظام الري", borer:"حفّار الساق", vascular_wilt:"ذبول وعائي",
+    weak_stem:"ساق ضعيف", anthracnose:"أنثراكنوز", fruit_rot_fungus:"تعفن فطري",
+    pollination_issue:"مشكلة تلقيح", dieback:"جفاف قممي", flower_necrosis:"نخر زهري",
+    salinity:"ملوحة", waterlogging:"تغدق", ph_issue:"خلل pH",
+    cold_stress:"إجهاد برودة", heat_stress:"إجهاد حرارة", wind_damage:"ضرر رياح/رمل",
+    nutrient_def_mix:"نقص عناصر مركّب", general_stunting:"تقزّم عام"
+  };
+
+  const severeKeywords = new Set(["wilting","root_rot","fruit_rot","bacterial_wilt","waterlogging","sunscald","stem_canker"]);
+
+  /* ========= تشخيص ========= */
   document.getElementById('diagnoseBtn').addEventListener('click', ()=>{
-    const selected = [...document.querySelectorAll('#symptomsChips input[type="checkbox"]:checked')].map(i=>i.value);
+    const selected = [...document.querySelectorAll('#symList .sym-item.active')].map(el=>el.dataset.id);
     const days = Math.max(0, parseInt(document.getElementById('days').value||'0',10));
     const trend = document.getElementById('growth').value;
 
     let diseaseScores = {}, tipsSet = new Set();
-    selected.forEach(s=>{
-      const info = knowledge[s]; if(!info) return;
+    selected.forEach(id=>{
+      const info = knowledge[id]; if(!info) return;
       Object.entries(info.diseases).forEach(([d,p])=> diseaseScores[d]=(diseaseScores[d]||0)+p );
-      info.tips.forEach(t=>tipsSet.add(t));
+      (info.tips||[]).forEach(t=>tipsSet.add(t));
     });
 
     let severityBase = selected.length + (days>=7?1:0) + (trend==="worse"?1:0) - (trend==="improving"?1:0);
@@ -464,112 +547,21 @@
     const alertsDiv = document.getElementById('alerts');
     sevDiv.innerHTML = hypDiv.innerHTML = tipsDiv.innerHTML = alertsDiv.innerHTML = "";
 
-    if(selected.length===0){ sevDiv.innerHTML=`<span class="hint">اختر أعراضًا أولًا.</span>`; return; }
+    if(selected.length===0){
+      sevDiv.innerHTML=`<span class="hint">اختر أعراضًا أولًا.</span>`; return;
+    }
 
     sevDiv.innerHTML = `<span class="badge ${sevClass}">${sevEmoji} شدة الإصابة: <strong>${sevLabel}</strong></span>`;
-
     hypDiv.innerHTML = probs.map(([k,p])=>
       `<div class="li"><div><strong>${diseaseLabels[k]||k}</strong></div><div class="pct">${p}%</div></div>`
     ).join('') || `<div class="li"><div>لا توجد قاعدة مطابقة مباشرة، راقب النبات.</div><div class="pct">—</div></div>`;
 
-    tipsDiv.innerHTML = `<h2>اقتراحات علاج</h2>` + [...tipsSet].slice(0,5).map(t=>`<div class="tip">✔︎ ${t}</div>`).join('');
+    tipsDiv.innerHTML = `<h2>اقتراحات علاج</h2>` + [...tipsSet].slice(0,6).map(t=>`<div class="tip">✔︎ ${t}</div>`).join('');
     if(days<=2 && trend!=="worse"){ tipsDiv.innerHTML += `<div class="tip">👀 الأعراض جديدة: تابع يومين قبل علاج قوي.</div>`; }
     else if(days>10 || trend==="worse"){ tipsDiv.innerHTML += `<div class="tip">🧪 الأعراض ممتدة/تزداد: تحليل تربة/أوراق وعلاج أقوى.</div>`; }
 
-    if(hasSevere){ alertsDiv.innerHTML = `<div class="tip warn">⚠️ تنبيه: توجد أعراض خطيرة (ذبول/تعفن جذور...). تحرّك بسرعة واستخدم معالجات مناسبة وقلّل الري.</div>`; }
+    if(hasSevere){ alertsDiv.innerHTML = `<div class="tip warn">⚠️ تنبيه: توجد أعراض قد تكون خطيرة. تحرّك بسرعة واستخدم معالجات مناسبة وقلّل الري.</div>`; }
   });
 </script>
-
-<div class="auth-overlay" id="auth-overlay"></div>
-<div class="auth-wrap" id="auth-wrap" role="dialog" aria-modal="true" aria-labelledby="auth-title">
-  <div class="auth-card">
-    <button class="auth-close" id="auth-close" aria-label="إغلاق">✕</button>
-    <div class="auth-tabs">
-      <button class="auth-tab active" data-tab="login">تسجيل الدخول</button>
-      <button class="auth-tab" data-tab="register">تسجيل حساب</button>
-    </div>
-    <div class="auth-body" style="padding:18px;background:linear-gradient(180deg, rgba(26,34,26,.92), rgba(26,34,26,.82)); border:1px solid rgba(255,255,255,.18);">
-      <form id="auth-login" class="auth-panel">
-        <div class="grid grid-2">
-          <div class="field">
-            <label class="label">اسم المستخدم / البريد</label>
-            <input class="input" type="text" placeholder="example@farm.test">
-          </div>
-          <div class="field">
-            <label class="label">كلمة المرور</label>
-            <input class="input" type="password" placeholder="••••••••">
-          </div>
-        </div>
-        <div class="row" style="justify-content:flex-start">
-          <button class="btn" type="button" id="login-submit">دخول</button>
-          <a class="btn" style="background:#0f1612" href="#" data-switch="register">إنشاء حساب</a>
-        </div>
-      </form>
-
-      <form id="auth-register" class="auth-panel hidden">
-        <div class="grid grid-2">
-          <div class="field"><label class="label">الاسم</label><input class="input" type="text" placeholder="خباب — المزارع"></div>
-          <div class="field"><label class="label">اسم المستخدم</label><input class="input" type="text" placeholder="kbab"></div>
-          <div class="field"><label class="label">البريد الإلكتروني</label><input class="input" type="email" placeholder="khabab@outlook.sa"></div>
-          <div class="field"><label class="label">الموقع</label><input class="input" type="text" placeholder=" الجزيرة"></div>
-          <div class="field"><label class="label">وسيلة الاتصال</label><input class="input" type="text" placeholder="0999888419"></div>
-          <div class="field"><label class="label">تاريخ الميلاد</label><input class="input" type="date" value="2000-09-05"></div>
-          <div class="field"><label class="label">كلمة المرور</label><input class="input" type="password" placeholder="••••••••"></div>
-          <div class="field"><label class="label">تأكيد كلمة المرور</label><input class="input" type="password" placeholder="••••••••"></div>
-        </div>
-        <div class="row" style="justify-content:flex-start">
-          <button class="btn" type="button" id="register-submit">تسجيل</button>
-          <a class="btn" style="background:#0f1612" href="#" data-switch="login">عندي حساب؟ دخول</a>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<script>
-(()=>{
-  const qs=(s,c=document)=>c.querySelector(s), qsa=(s,c=document)=>Array.from(c.querySelectorAll(s));
-  const wrap=qs('#auth-wrap'), overlay=qs('#auth-overlay'), closeBtn=qs('#auth-close');
-  const tabs=qsa('.auth-tab');
-  const panels={ login:qs('#auth-login'), register:qs('#auth-register') };
-
-  function setMode(mode){
-    tabs.forEach(t=>t.classList.toggle('active', t.dataset.tab===mode));
-    Object.keys(panels).forEach(k=>panels[k].classList.toggle('hidden', k!==mode));
-  }
-  function openAuth(mode='login'){
-    setMode(mode);
-    overlay.style.display='block'; wrap.style.display='flex';
-    document.documentElement.style.overflow='hidden';
-  }
-  function closeAuth(){
-    overlay.style.display='none'; wrap.style.display='none';
-    document.documentElement.style.overflow='';
-  }
-
-  tabs.forEach(b=>b.addEventListener('click', ()=>setMode(b.dataset.tab)));
-  qsa('[data-switch="login"]').forEach(b=>b.addEventListener('click', (e)=>{e.preventDefault(); setMode('login');}));
-  qsa('[data-switch="register"]').forEach(b=>b.addEventListener('click', (e)=>{e.preventDefault(); setMode('register');}));
-  closeBtn?.addEventListener('click', closeAuth);
-  overlay?.addEventListener('click', closeAuth);
-  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeAuth(); });
-
-  // Intercept LOWER-MENU links pointing to login/register
-  document.addEventListener('click', (e)=>{
-    const a=e.target.closest('a'); if(!a) return;
-    const href=(a.getAttribute('href')||'').toLowerCase();
-    if(href.endsWith('login.html')||href==='/login'){ e.preventDefault(); openAuth('login'); }
-    if(href.endsWith('register.html')||href==='/register'){ e.preventDefault(); openAuth('register'); }
-  });
-
-  // Demo submit
-  const ok=(msg)=>{ alert(msg); closeAuth(); };
-  qs('#login-submit')?.addEventListener('click', ()=>ok('تم الدخول (استعراضي)'));
-  qs('#register-submit')?.addEventListener('click', ()=>ok('تم التسجيل (استعراضي)'));
-  // Expose for manual triggers if needed
-  window.openAuth=openAuth;
-})();
-</script>
-
 </body>
 </html>
